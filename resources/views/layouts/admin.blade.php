@@ -76,7 +76,7 @@
 
     <!-- TOP BAR -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3>Dashboard Admin</h3>
+        <h3>@yield('title', 'Dashboard Admin')</h3>
 
         <span class="badge bg-primary">
             {{ auth()->user()->name ?? 'Admin' }}

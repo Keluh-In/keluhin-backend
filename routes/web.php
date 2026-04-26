@@ -3,6 +3,8 @@
 use App\Models\Complaint;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ComplaintController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\UserController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -91,11 +93,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/complaints', [ComplaintController::class, 'index'])
         ->name('admin.complaints.index');
 
-    Route::get('/categories', function () {
-        return view('admin.categories.index');
-    });
+    Route::get('/categories', [CategoryController::class, 'index'])
+        ->name('admin.categories.index');
 
-    Route::get('/users', function () {
-        return view('admin.users.index');
-    });
+    Route::get('/users', [UserController::class, 'index'])
+        ->name('admin.users.index');
 });

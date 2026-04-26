@@ -9,9 +9,8 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::where('role', 'user')
-            ->withCount('complaints')
-            ->latest()
+        $users = User::withCount('complaints')
+            ->orderBy('id')
             ->get();
 
         return view('admin.users.index', compact('users'));

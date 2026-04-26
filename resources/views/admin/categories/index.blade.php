@@ -1,131 +1,56 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Categories - Admin Keluh.in</title>
+@extends('layouts.admin')
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f9;
-            margin: 0;
-            padding: 0;
-        }
+@section('title', 'Kategori')
 
-        .container {
-            padding: 30px;
-        }
+@section('content')
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Kategori</h3>
+            <div class="text-muted">Kelola kategori pengaduan.</div>
+        </div>
 
-        .card {
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        h1 {
-            margin-bottom: 20px;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 10px 15px;
-            background: #2563eb;
-            color: #fff;
-            border-radius: 6px;
-            text-decoration: none;
-            margin-bottom: 15px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table th, table td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
-        }
-
-        table th {
-            background: #f1f5f9;
-        }
-
-        .badge {
-            padding: 5px 10px;
-            background: #10b981;
-            color: #fff;
-            border-radius: 20px;
-            font-size: 12px;
-        }
-
-        .action-btn {
-            padding: 6px 10px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 12px;
-        }
-
-        .edit {
-            background: #f59e0b;
-            color: #fff;
-        }
-
-        .delete {
-            background: #ef4444;
-            color: #fff;
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-
-    <div class="card">
-
-        <h1>📂 Categories</h1>
-
-        <a href="#" class="btn">+ Tambah Category</a>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nama Category</th>
-                    <th>Status</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-
-            <tbody>
-
-                <tr>
-                    <td>1</td>
-                    <td>Infrastruktur</td>
-                    <td><span class="badge">Aktif</span></td>
-                    <td>
-                        <a href="#" class="action-btn edit">Edit</a>
-                        <a href="#" class="action-btn delete">Hapus</a>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>2</td>
-                    <td>Pelayanan Publik</td>
-                    <td><span class="badge">Aktif</span></td>
-                    <td>
-                        <a href="#" class="action-btn edit">Edit</a>
-                        <a href="#" class="action-btn delete">Hapus</a>
-                    </td>
-                </tr>
-
-            </tbody>
-        </table>
-
+        <a href="#" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Tambah Kategori
+        </a>
     </div>
 
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="80">ID</th>
+                            <th>Nama Kategori</th>
+                            <th width="140">Status</th>
+                            <th width="160">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($categories as $category)
+                            <tr>
+                                <td>{{ $category->id }}</td>
+                                <td class="fw-semibold">{{ $category->name }}</td>
+                                <td>
+                                    <span class="badge bg-success">Aktif</span>
+                                </td>
+                                <td>
+                                    <a href="#" class="btn btn-sm btn-warning text-white">Edit</a>
+                                    <a href="#" class="btn btn-sm btn-danger">Hapus</a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">
+                                    Belum ada kategori
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
-
-</body>
-</html>
+@endsection
