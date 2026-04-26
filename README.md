@@ -1,58 +1,354 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Keluhin Backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Backend Laravel untuk aplikasi Keluhin. Project ini menyediakan API auth, kategori, pengaduan, dan halaman admin dashboard sederhana.
 
-## About Laravel
+## Requirement
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Pastikan sudah terinstall:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- PHP 8.3 atau lebih baru
+- Composer
+- Node.js dan npm
+- SQLite
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Environment yang dipakai:
 
-## Learning Laravel
+- macOS: Laravel Herd
+- Windows: Laragon
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Catatan Environment
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### macOS + Laravel Herd
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+Laravel Herd biasanya sudah menyediakan PHP dan Composer.
 
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Jika `php` atau `composer` belum terbaca di terminal, jalankan:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+source ~/.zshrc
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Lalu cek:
 
-## Contributing
+```bash
+php -v
+composer --version
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Windows + Laragon
 
-## Code of Conduct
+Jalankan command dari terminal Laragon, PowerShell, Command Prompt, Git Bash, atau terminal bawaan editor.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Pastikan PHP dan Composer dari Laragon sudah terbaca:
 
-## Security Vulnerabilities
+```bash
+php -v
+composer --version
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Jika belum terbaca, buka Laragon lalu cek menu:
 
-## License
+```text
+Menu > Tools > Path > Add Laragon to Path
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Setelah itu tutup terminal lama, buka terminal baru, lalu cek ulang `php -v` dan `composer --version`.
+
+## Setup Dari Awal
+
+Clone repository:
+
+```bash
+git clone <url-repository>
+cd keluhin-backend
+```
+
+Install dependency PHP:
+
+```bash
+composer install
+```
+
+Install dependency frontend:
+
+```bash
+npm install
+```
+
+Copy file environment.
+
+macOS / Linux / Git Bash:
+
+```bash
+cp .env.example .env
+```
+
+Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Windows Command Prompt:
+
+```bat
+copy .env.example .env
+```
+
+Generate application key:
+
+```bash
+php artisan key:generate
+```
+
+## Konfigurasi Database
+
+Project ini memakai SQLite untuk development lokal.
+
+Disarankan pakai file SQLite di folder `database`.
+
+macOS / Linux / Git Bash:
+
+```bash
+touch database/database.sqlite
+```
+
+Windows PowerShell:
+
+```powershell
+New-Item -ItemType File database/database.sqlite
+```
+
+Windows Command Prompt:
+
+```bat
+type nul > database\database.sqlite
+```
+
+Lalu ubah `.env` menjadi salah satu opsi berikut.
+
+Opsi paling universal:
+
+```env
+DB_CONNECTION=sqlite
+DB_DATABASE=database/database.sqlite
+```
+
+Jika SQLite tidak terbaca dengan path relatif, gunakan absolute path sesuai OS.
+
+macOS / Linux:
+
+```env
+DB_CONNECTION=sqlite
+DB_DATABASE=/path/ke/project/keluhin-backend/database/database.sqlite
+```
+
+Windows:
+
+```env
+DB_CONNECTION=sqlite
+DB_DATABASE=C:\path\ke\project\keluhin-backend\database\database.sqlite
+```
+
+Contoh jika project ada di Laragon:
+
+```env
+DB_CONNECTION=sqlite
+DB_DATABASE=C:\laragon\www\keluhin-backend\database\database.sqlite
+```
+
+Bagian berikut tidak dipakai oleh SQLite, jadi boleh dibiarkan atau dikomentari:
+
+```env
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Catatan: jika `.env` memakai `DB_DATABASE=keluhin`, Laravel akan membuat file SQLite bernama `keluhin` di root project.
+
+## Migrasi dan Seeder
+
+Untuk membuat ulang database dari nol dan mengisi data contoh:
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+Seeder akan membuat:
+
+- akun admin
+- user dummy
+- kategori pengaduan
+- data pengaduan dummy
+
+Contoh akun admin:
+
+```text
+Email: admin@keluhin.com
+Password: password123
+```
+
+## Menjalankan Project
+
+Jalankan server Laravel:
+
+```bash
+php artisan serve
+```
+
+Buka:
+
+```text
+http://127.0.0.1:8000
+```
+
+Admin login:
+
+```text
+http://127.0.0.1:8000/admin/login
+```
+
+Admin dashboard:
+
+```text
+http://127.0.0.1:8000/admin/dashboard
+```
+
+Jika belum login, dashboard akan redirect ke halaman login admin.
+
+## Menjalankan Asset Frontend
+
+Untuk development Vite:
+
+```bash
+npm run dev
+```
+
+Untuk build asset:
+
+```bash
+npm run build
+```
+
+## Endpoint API Utama
+
+Auth:
+
+```text
+POST /api/register
+POST /api/login
+POST /api/logout
+```
+
+Profile:
+
+```text
+GET /api/profile
+PUT /api/profile
+```
+
+Complaints:
+
+```text
+GET    /api/complaints
+POST   /api/complaints
+GET    /api/complaints/{id}
+PUT    /api/complaints/{id}
+DELETE /api/complaints/{id}
+```
+
+Categories:
+
+```text
+GET /api/categories
+```
+
+Endpoint yang berada di dalam middleware `auth:sanctum` membutuhkan token dari `/api/login`.
+
+## Membuka Database di TablePlus
+
+Jika memakai konfigurasi yang disarankan, pilih file:
+
+```text
+database/database.sqlite
+```
+
+Jika masih memakai konfigurasi lama `DB_DATABASE=keluhin`, pilih file bernama `keluhin` di root project.
+
+```text
+keluhin
+```
+
+Di TablePlus:
+
+1. Buat connection baru.
+2. Pilih SQLite.
+3. Pilih file database.
+4. Klik Connect.
+
+Tabel utama:
+
+- users
+- categories
+- complaints
+- responses
+- sessions
+- jobs
+- personal_access_tokens
+
+## Command Berguna
+
+Cek route:
+
+```bash
+php artisan route:list
+```
+
+Cek status migration:
+
+```bash
+php artisan migrate:status
+```
+
+Clear config cache:
+
+```bash
+php artisan config:clear
+```
+
+Reset database dan isi ulang data contoh:
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+## Troubleshooting
+
+Jika muncul error `vendor/autoload.php not found`, jalankan:
+
+```bash
+composer install
+```
+
+Jika muncul error `No application encryption key has been specified`, jalankan:
+
+```bash
+php artisan key:generate
+php artisan config:clear
+```
+
+Jika muncul error `no such table: sessions`, pastikan migration sudah dijalankan:
+
+```bash
+php artisan migrate
+```
+
+Jika `php` atau `composer` tidak ditemukan tetapi sudah install lewat Laravel Herd:
+
+```bash
+source ~/.zshrc
+php -v
+composer --version
+```
