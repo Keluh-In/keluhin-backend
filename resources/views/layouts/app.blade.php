@@ -39,9 +39,12 @@
     <div class="ms-auto">
         @auth
             <a href="/profile" class="btn btn-light btn-sm">Profile</a>
-            <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+            <form method="POST" action="/admin/logout" class="d-inline">
+                @csrf
+                <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+            </form>
         @else
-            <a href="/login" class="btn btn-light btn-sm">Login</a>
+            <a href="/admin/login" class="btn btn-light btn-sm">Login</a>
         @endauth
     </div>
 </nav>

@@ -17,7 +17,8 @@ class ComplaintFactory extends Factory
 
         return [
             'user_id' => User::factory(),
-            'category_id' => Category::factory(),
+            'category_id' => Category::query()->inRandomOrder()->value('id')
+                ?? Category::create(['name' => 'Lainnya'])->id,
             'title' => fake()->sentence(6),
             'description' => fake()->paragraph(),
             'location' => fake()->city(),

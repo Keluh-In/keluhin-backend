@@ -15,7 +15,7 @@ class AdminMiddleware
         $user = $request->user();
 
         if (!$user || $user->role !== 'admin') {
-            return redirect('/login')->withErrors([
+            return redirect('/admin/login')->withErrors([
                 'access' => 'Akses ditolak, hanya admin'
             ]);
         }

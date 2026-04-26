@@ -14,12 +14,14 @@ return new class extends Migration {
 
     $table->string('title');
     $table->text('description');
+    $table->string('location')->nullable();
 
     // ✅ INI WAJIB
     $table->enum('status', ['menunggu', 'diproses', 'selesai', 'ditolak'])
           ->default('menunggu');
 
     $table->string('image')->nullable();
+    $table->boolean('is_anonymous')->default(false);
 
     $table->timestamps();
 });

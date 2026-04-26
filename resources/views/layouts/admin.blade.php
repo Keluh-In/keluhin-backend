@@ -62,7 +62,12 @@
 
     <hr>
 
-    <a href="/logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    <form method="POST" action="/admin/logout">
+        @csrf
+        <button type="submit" class="btn text-white w-100 text-start p-0">
+            <i class="bi bi-box-arrow-right"></i> Logout
+        </button>
+    </form>
 
 </div>
 

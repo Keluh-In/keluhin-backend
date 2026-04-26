@@ -20,7 +20,7 @@
             <nav class="space-x-6 text-sm font-medium">
                 <a href="#" class="hover:text-indigo-600">Beranda</a>
                 <a href="#" class="hover:text-indigo-600">Fitur</a>
-                <a href="/login" class="text-indigo-600 hover:underline">Login</a>
+                <a href="/admin/login" class="text-indigo-600 hover:underline">Login</a>
             </nav>
         </div>
     </header>
@@ -40,12 +40,12 @@
             </p>
 
             <div class="mt-6 flex gap-4">
-                <a href="/register"
+                <a href="/admin/register"
                    class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">
                     Mulai Sekarang
                 </a>
 
-                <a href="/login"
+                <a href="/admin/login"
                    class="border border-gray-300 px-6 py-3 rounded-lg hover:bg-gray-100">
                     Login
                 </a>

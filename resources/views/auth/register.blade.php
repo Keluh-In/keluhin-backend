@@ -35,7 +35,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="/register">
+            <form method="POST" action="/admin/register">
                 @csrf
 
                 <div class="mb-3">
@@ -63,7 +63,7 @@
 
             <p class="text-center mt-3">
                 Sudah punya akun?
-                <a href="/login">Login</a>
+                <a href="/admin/login">Login</a>
             </p>
 
         </div>

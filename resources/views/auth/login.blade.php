@@ -7,9 +7,18 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
+        html,
+        body {
+            min-height: 100%;
+        }
+
         body {
             background: linear-gradient(120deg, #0d6efd, #4dabf7);
-            height: 100vh;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
         }
 
         .card {
@@ -18,13 +27,10 @@
     </style>
 </head>
 <body>
-<form method="POST" action="/login">
-    @csrf
-<div class="container d-flex justify-content-center align-items-center h-100">
-
-    <div class="col-md-5">
-
-        <div class="card shadow p-4">
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-11 col-sm-8 col-md-6 col-lg-4">
+            <div class="card shadow p-4">
 
             <h3 class="text-center mb-4">🔐 Login KELUH.IN</h3>
 
@@ -34,7 +40,13 @@
                 </div>
             @endif
 
-            <form method="POST" action="/login">
+            <div class="alert alert-info small">
+                <div class="fw-semibold mb-1">Contoh akun admin</div>
+                <div>Email: <strong>admin@keluhin.com</strong></div>
+                <div>Password: <strong>password123</strong></div>
+            </div>
+
+            <form method="POST" action="/admin/login">
                 @csrf
 
                 <div class="mb-3">
@@ -52,13 +64,12 @@
 
             <p class="text-center mt-3">
                 Belum punya akun?
-                <a href="/register">Register</a>
+                <a href="/admin/register">Register</a>
             </p>
 
+            </div>
         </div>
-
     </div>
-
 </div>
 
 </body>

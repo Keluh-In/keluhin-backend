@@ -17,7 +17,7 @@
             <li class="mb-3"><a href="#">Complaints</a></li>
             <li class="mb-3"><a href="#">Users</a></li>
             <li class="mt-10">
-                <form method="POST" action="/logout">
+                <form method="POST" action="/admin/logout">
                     @csrf
                     <button class="bg-red-500 px-3 py-1 rounded">Logout</button>
                 </form>
