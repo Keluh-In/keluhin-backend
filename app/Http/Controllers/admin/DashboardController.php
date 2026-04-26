@@ -11,9 +11,14 @@ class DashboardController extends Controller
     public function index()
     {
         $totalComplaint = Complaint::count();
-        $pending = Complaint::where('status', 'pending')->count();
-        $proses = Complaint::where('status', 'proses')->count();
+        $pending = Complaint::where('status', 'menunggu')->count();
+        $proses = Complaint::where('status', 'diproses')->count();
         $selesai = Complaint::where('status', 'selesai')->count();
+        $ditolak = Complaint::where('status', 'ditolak')->count();
+        $latestComplaints = Complaint::with(['user', 'category'])
+            ->latest()
+            ->take(6)
+            ->get();
 
         $users = User::count();
 
@@ -22,6 +27,8 @@ class DashboardController extends Controller
             'pending',
             'proses',
             'selesai',
+            'ditolak',
+            'latestComplaints',
             'users'
         ));
     }
