@@ -310,7 +310,108 @@
             text-align: center;
         }
 
+        .form-panel {
+            padding: 22px 24px;
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            align-items: end;
+        }
+
+        .form-grid .span-2 {
+            grid-column: span 2;
+        }
+
+        .form-grid .span-4 {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            color: #374151;
+            font-size: .84rem;
+            font-weight: 600;
+        }
+
+        .form-control,
+        .form-select {
+            min-height: 42px;
+            border-color: var(--admin-line);
+            border-radius: var(--admin-radius);
+            color: var(--admin-text);
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #bfdbfe;
+            box-shadow: 0 0 0 .2rem rgba(37, 99, 235, .1);
+        }
+
+        .table-input {
+            min-width: 150px;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .btn-soft-danger {
+            border: 0;
+            border-radius: var(--admin-radius);
+            background: #fef2f2;
+            color: #b91c1c;
+            font-weight: 600;
+        }
+
+        .btn-soft-danger:hover {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .alert {
+            border: 0;
+            border-radius: var(--admin-radius);
+            box-shadow: var(--admin-shadow);
+        }
+
+        .modal-content {
+            border: 0;
+            border-radius: var(--admin-radius);
+            box-shadow: 0 28px 80px rgba(15, 23, 42, .18);
+        }
+
+        .modal-header,
+        .modal-footer {
+            border-color: var(--admin-line);
+            padding: 20px 24px;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-title {
+            color: var(--admin-text);
+            font-size: 1.08rem;
+            font-weight: 700;
+        }
+
         @media (max-width: 991.98px) {
+            .form-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .form-grid .span-2,
+            .form-grid .span-4 {
+                grid-column: 1 / -1;
+            }
+
             .admin-shell {
                 grid-template-columns: 1fr;
             }
@@ -423,10 +524,25 @@
                 </div>
             </header>
 
+            @if (session('success'))
+                <div class="alert alert-success mb-4">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="alert alert-danger mb-4">
+                    @foreach($errors->all() as $error)
+                        <div>{{ $error }}</div>
+                    @endforeach
+                </div>
+            @endif
+
             @yield('content')
         </div>
     </main>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -89,13 +89,31 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('admin.dashboard');
 
-    // Complaints (PAKAI CONTROLLER - CLEAN)
+    // Complaints
     Route::get('/complaints', [ComplaintController::class, 'index'])
         ->name('admin.complaints.index');
+    Route::post('/complaints', [ComplaintController::class, 'store'])
+        ->name('admin.complaints.store');
+    Route::put('/complaints/{complaint}', [ComplaintController::class, 'update'])
+        ->name('admin.complaints.update');
+    Route::delete('/complaints/{complaint}', [ComplaintController::class, 'destroy'])
+        ->name('admin.complaints.destroy');
 
     Route::get('/categories', [CategoryController::class, 'index'])
         ->name('admin.categories.index');
+    Route::post('/categories', [CategoryController::class, 'store'])
+        ->name('admin.categories.store');
+    Route::put('/categories/{category}', [CategoryController::class, 'update'])
+        ->name('admin.categories.update');
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])
+        ->name('admin.categories.destroy');
 
     Route::get('/users', [UserController::class, 'index'])
         ->name('admin.users.index');
+    Route::post('/users', [UserController::class, 'store'])
+        ->name('admin.users.store');
+    Route::put('/users/{user}', [UserController::class, 'update'])
+        ->name('admin.users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])
+        ->name('admin.users.destroy');
 });
