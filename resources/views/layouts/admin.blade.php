@@ -237,6 +237,79 @@
             border-radius: var(--admin-radius);
         }
 
+        .section-card {
+            overflow: hidden;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 22px 24px;
+            border-bottom: 1px solid var(--admin-line);
+        }
+
+        .section-title {
+            margin: 0;
+            color: var(--admin-text);
+            font-size: 1.02rem;
+            font-weight: 700;
+            letter-spacing: 0;
+        }
+
+        .section-subtitle {
+            margin-top: 4px;
+            color: var(--admin-muted);
+            font-size: .88rem;
+        }
+
+        .metric-strip {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .mini-metric {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 18px;
+        }
+
+        .mini-metric-label {
+            color: var(--admin-muted);
+            font-size: .86rem;
+            font-weight: 600;
+        }
+
+        .mini-metric-value {
+            margin-top: 6px;
+            color: var(--admin-text);
+            font-size: 1.65rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .mini-metric-icon {
+            display: inline-flex;
+            width: 38px;
+            height: 38px;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--admin-radius);
+            background: var(--admin-primary-soft);
+            color: var(--admin-primary);
+        }
+
+        .empty-state {
+            padding: 44px 24px;
+            color: #94a3b8;
+            text-align: center;
+        }
+
         @media (max-width: 991.98px) {
             .admin-shell {
                 grid-template-columns: 1fr;
@@ -271,6 +344,15 @@
         }
 
         @media (max-width: 575.98px) {
+            .metric-strip {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
             .sidebar-nav {
                 grid-template-columns: 1fr;
             }

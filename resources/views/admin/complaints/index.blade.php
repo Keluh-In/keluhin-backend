@@ -1,67 +1,87 @@
 @extends('layouts.admin')
 
 @section('title', 'Pengaduan')
+@section('subtitle', 'Pantau laporan pengguna dan status penanganannya.')
 
 @section('content')
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h3 class="fw-bold mb-1">Pengaduan</h3>
-            <div class="text-muted">Pantau dan kelola laporan pengaduan terbaru.</div>
-        </div>
+@php
+    $totalComplaints = $complaints->count();
+    $waitingComplaints = $complaints->where('status', 'menunggu')->count();
+    $activeComplaints = $complaints->where('status', 'diproses')->count();
+@endphp
 
-        <a href="#" class="btn btn-primary">
-            <i class="bi bi-plus-lg"></i> Tambah Pengaduan
-        </a>
+<div class="metric-strip">
+    <div class="card mini-metric">
+        <div>
+            <div class="mini-metric-label">Total laporan</div>
+            <div class="mini-metric-value">{{ number_format($totalComplaints) }}</div>
+        </div>
+        <span class="mini-metric-icon"><i class="bi bi-inbox"></i></span>
     </div>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th width="80">#</th>
-                            <th>Judul</th>
-                            <th>User</th>
-                            <th width="140">Status</th>
-                            <th width="160">Tanggal</th>
-                            <th width="120">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($complaints as $complaint)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td class="fw-semibold">{{ $complaint->title ?? '-' }}</td>
-                                <td>{{ $complaint->user->name ?? '-' }}</td>
-                                <td>
-                                    @if($complaint->status === 'menunggu')
-                                        <span class="badge bg-warning text-dark">Menunggu</span>
-                                    @elseif($complaint->status === 'diproses')
-                                        <span class="badge bg-info">Diproses</span>
-                                    @elseif($complaint->status === 'selesai')
-                                        <span class="badge bg-success">Selesai</span>
-                                    @else
-                                        <span class="badge bg-danger">{{ ucfirst($complaint->status) }}</span>
-                                    @endif
-                                </td>
-                                <td>{{ optional($complaint->created_at)->format('d M Y') }}</td>
-                                <td>
-                                    <a href="#" class="btn btn-sm btn-primary">Detail</a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="text-center py-4 text-muted">
-                                    Belum ada data pengaduan
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+    <div class="card mini-metric">
+        <div>
+            <div class="mini-metric-label">Menunggu</div>
+            <div class="mini-metric-value">{{ number_format($waitingComplaints) }}</div>
         </div>
+        <span class="mini-metric-icon"><i class="bi bi-hourglass-split"></i></span>
+    </div>
+
+    <div class="card mini-metric">
+        <div>
+            <div class="mini-metric-label">Diproses</div>
+            <div class="mini-metric-value">{{ number_format($activeComplaints) }}</div>
+        </div>
+        <span class="mini-metric-icon"><i class="bi bi-arrow-repeat"></i></span>
     </div>
 </div>
+
+<section class="card section-card">
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">Daftar Pengaduan</h2>
+            <div class="section-subtitle">Laporan terbaru ditampilkan paling atas.</div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th width="80">#</th>
+                    <th>Judul</th>
+                    <th>User</th>
+                    <th>Status</th>
+                    <th>Tanggal</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($complaints as $complaint)
+                    @php
+                        $status = $complaint->status ?? 'menunggu';
+                        $badgeClass = [
+                            'menunggu' => 'badge-menunggu',
+                            'diproses' => 'badge-diproses',
+                            'selesai' => 'badge-selesai',
+                            'ditolak' => 'badge-ditolak',
+                        ][$status] ?? 'badge-menunggu';
+                    @endphp
+                    <tr>
+                        <td class="text-muted">{{ $loop->iteration }}</td>
+                        <td class="fw-semibold">{{ $complaint->title ?? '-' }}</td>
+                        <td>{{ $complaint->is_anonymous ? 'Anonim' : ($complaint->user->name ?? '-') }}</td>
+                        <td>
+                            <span class="badge-soft {{ $badgeClass }}">{{ ucfirst($status) }}</span>
+                        </td>
+                        <td>{{ optional($complaint->created_at)->format('d M Y') }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="empty-state">Belum ada data pengaduan.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</section>
 @endsection
