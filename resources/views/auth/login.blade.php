@@ -163,7 +163,7 @@
         </form>
 
         <p class="text-center mt-4 mb-0 text-muted">
-            Akun baru dibuat oleh admin melalui halaman Users.
+            Akun baru dibuat oleh admin melalui halaman Pengguna.
         </p>
     </section>
 </main>

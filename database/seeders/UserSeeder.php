@@ -10,15 +10,26 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // ADMIN DEFAULT
-        User::create([
-            'name' => 'Admin Keluhin',
-            'email' => 'admin@keluhin.com',
-            'password' => Hash::make('password123'),
-            'role' => 'admin',
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@keluhin.com'],
+            [
+                'name' => 'Admin Keluhin',
+                'password' => Hash::make('password123'),
+                'role' => 'admin',
+            ]
+        );
 
-        // USER DUMMY
-        User::factory(10)->create();
+        User::updateOrCreate(
+            ['email' => 'superadmin@keluhin.com'],
+            [
+                'name' => 'Super Admin Keluhin',
+                'password' => Hash::make('password123'),
+                'role' => 'super_admin',
+            ]
+        );
+
+        if (User::where('role', 'user')->doesntExist()) {
+            User::factory(10)->create();
+        }
     }
 }

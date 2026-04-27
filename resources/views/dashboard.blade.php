@@ -15,7 +15,7 @@
         <ul>
             <li class="mb-3"><a href="/admin/dashboard">Dashboard</a></li>
             <li class="mb-3"><a href="#">Complaints</a></li>
-            <li class="mb-3"><a href="#">Users</a></li>
+            <li class="mb-3"><a href="#">Pengguna</a></li>
             <li class="mt-10">
                 <form method="POST" action="/admin/logout">
                     @csrf

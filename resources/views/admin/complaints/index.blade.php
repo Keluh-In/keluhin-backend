@@ -56,7 +56,7 @@
                 <tr>
                     <th width="80">#</th>
                     <th>Judul</th>
-                    <th>User</th>
+                    <th>Pengguna</th>
                     <th>Kategori</th>
                     <th>Status</th>
                     <th>Tanggal</th>
@@ -120,9 +120,9 @@
             <div class="modal-body">
                 <div class="form-grid">
                     <div>
-                        <label class="form-label" for="create_user_id">User</label>
+                        <label class="form-label" for="create_user_id">Pengguna</label>
                         <select id="create_user_id" name="user_id" class="form-select" required>
-                            <option value="">Pilih user</option>
+                            <option value="">Pilih pengguna</option>
                             @foreach($users as $user)
                                 <option value="{{ $user->id }}" @selected(old('user_id') == $user->id)>{{ $user->name }}</option>
                             @endforeach
@@ -190,7 +190,7 @@
                 <div class="modal-body">
                     <div class="form-grid">
                         <div>
-                            <label class="form-label" for="edit_user_id_{{ $complaint->id }}">User</label>
+                            <label class="form-label" for="edit_user_id_{{ $complaint->id }}">Pengguna</label>
                             <select id="edit_user_id_{{ $complaint->id }}" name="user_id" class="form-select" required>
                                 @foreach($users as $user)
                                     <option value="{{ $user->id }}" @selected($complaint->user_id === $user->id)>{{ $user->name }}</option>

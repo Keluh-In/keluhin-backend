@@ -192,7 +192,7 @@
             <div class="modal-body">
                 <div class="form-grid">
                     <div>
-                        <label class="form-label" for="edit_user_id">User</label>
+                        <label class="form-label" for="edit_user_id">Pengguna</label>
                         <select id="edit_user_id" name="user_id" class="form-select" required>
                             @foreach($users as $user)
                                 <option value="{{ $user->id }}" @selected($complaint->user_id === $user->id)>{{ $user->name }}</option>

@@ -2,7 +2,7 @@
 
 @section('content')
 
-<h3>Users</h3>
+<h3>Pengguna</h3>
 
 <table class="table table-striped">
     <tr>

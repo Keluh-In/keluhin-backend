@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdminAuditLog;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -15,8 +16,11 @@ class UserController extends Controller
         $users = User::withCount('complaints')
             ->orderBy('id')
             ->get();
+        $roleOptions = auth()->user()->isSuperAdmin()
+            ? User::roleOptions()
+            : [User::ROLE_USER => 'Pengguna'];
 
-        return view('admin.users.index', compact('users'));
+        return view('admin.users.index', compact('users', 'roleOptions'));
     }
 
     public function store(Request $request)
@@ -25,17 +29,30 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:6'],
-            'role' => ['required', Rule::in(['admin', 'user'])],
+            'role' => ['required', Rule::in(User::roles())],
         ]);
 
-        User::create([
+        if (! $this->canAssignRole($data['role'])) {
+            return back()
+                ->withErrors(['role' => 'Hanya super admin yang boleh membuat akun admin.'])
+                ->withInput();
+        }
+
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'role' => $data['role'],
         ]);
 
-        return back()->with('success', 'User berhasil ditambahkan.');
+        AdminAuditLog::record(
+            'user.created',
+            $user,
+            null,
+            AdminAuditLog::snapshot($user, $this->userAuditFields())
+        );
+
+        return back()->with('success', 'Pengguna berhasil ditambahkan.');
     }
 
     public function update(Request $request, User $user)
@@ -49,8 +66,25 @@ class UserController extends Controller
                 Rule::unique('users', 'email')->ignore($user->id),
             ],
             'password' => ['nullable', 'string', 'min:6'],
-            'role' => ['required', Rule::in(['admin', 'user'])],
+            'role' => ['required', Rule::in(User::roles())],
         ]);
+
+        if (! $this->canManageUser($user)) {
+            return back()->withErrors(['user' => 'Hanya super admin yang boleh mengelola akun admin lain.']);
+        }
+
+        if (! $this->canAssignRole($data['role'])) {
+            return back()
+                ->withErrors(['role' => 'Hanya super admin yang boleh memberi role admin.'])
+                ->withInput();
+        }
+
+        if (auth()->id() === $user->id && $user->role !== $data['role']) {
+            return back()->withErrors(['role' => 'Role akun yang sedang digunakan tidak bisa diubah.']);
+        }
+
+        $before = AdminAuditLog::snapshot($user, $this->userAuditFields());
+        $passwordChanged = ! empty($data['password']);
 
         $user->fill([
             'name' => $data['name'],
@@ -64,7 +98,15 @@ class UserController extends Controller
 
         $user->save();
 
-        return back()->with('success', 'User berhasil diperbarui.');
+        $after = AdminAuditLog::snapshot($user, $this->userAuditFields());
+
+        if ($before !== $after || $passwordChanged) {
+            AdminAuditLog::record('user.updated', $user, $before, $after, [
+                'password_changed' => $passwordChanged,
+            ]);
+        }
+
+        return back()->with('success', 'Pengguna berhasil diperbarui.');
     }
 
     public function destroy(User $user)
@@ -73,9 +115,22 @@ class UserController extends Controller
             return back()->withErrors(['user' => 'Akun yang sedang digunakan tidak bisa dihapus.']);
         }
 
+        if (! $this->canManageUser($user)) {
+            return back()->withErrors(['user' => 'Hanya super admin yang boleh menghapus akun admin lain.']);
+        }
+
+        $before = AdminAuditLog::snapshot($user, $this->userAuditFields());
+
         $user->delete();
 
-        return back()->with('success', 'User berhasil dihapus.');
+        AdminAuditLog::record(
+            'user.soft_deleted',
+            $user,
+            $before,
+            AdminAuditLog::snapshot($user, $this->userAuditFields())
+        );
+
+        return back()->with('success', 'Pengguna berhasil dihapus.');
     }
 
     public function ban(User $user)
@@ -84,20 +139,46 @@ class UserController extends Controller
             return back()->withErrors(['user' => 'Akun yang sedang digunakan tidak bisa diban.']);
         }
 
+        if (! $this->canManageUser($user)) {
+            return back()->withErrors(['user' => 'Hanya super admin yang boleh ban akun admin lain.']);
+        }
+
+        $before = AdminAuditLog::snapshot($user, $this->userAuditFields());
+
         $user->forceFill([
             'banned_at' => now(),
         ])->save();
 
-        return back()->with('success', 'User berhasil diban.');
+        AdminAuditLog::record(
+            'user.banned',
+            $user,
+            $before,
+            AdminAuditLog::snapshot($user, $this->userAuditFields())
+        );
+
+        return back()->with('success', 'Pengguna berhasil diban.');
     }
 
     public function unban(User $user)
     {
+        if (! $this->canManageUser($user)) {
+            return back()->withErrors(['user' => 'Hanya super admin yang boleh membuka ban akun admin lain.']);
+        }
+
+        $before = AdminAuditLog::snapshot($user, $this->userAuditFields());
+
         $user->forceFill([
             'banned_at' => null,
         ])->save();
 
-        return back()->with('success', 'Ban user berhasil dibuka.');
+        AdminAuditLog::record(
+            'user.unbanned',
+            $user,
+            $before,
+            AdminAuditLog::snapshot($user, $this->userAuditFields())
+        );
+
+        return back()->with('success', 'Ban pengguna berhasil dibuka.');
     }
 
     public function show($id)
@@ -105,5 +186,27 @@ class UserController extends Controller
         $user = User::with('complaints')->findOrFail($id);
 
         return view('admin.users.detail', compact('user'));
+    }
+
+    private function canAssignRole(string $role): bool
+    {
+        return $role === User::ROLE_USER || auth()->user()->isSuperAdmin();
+    }
+
+    private function canManageUser(User $user): bool
+    {
+        return $user->role === User::ROLE_USER || auth()->user()->isSuperAdmin();
+    }
+
+    private function userAuditFields(): array
+    {
+        return [
+            'id',
+            'name',
+            'email',
+            'role',
+            'banned_at',
+            'deleted_at',
+        ];
     }
 }

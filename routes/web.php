@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ComplaintController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -42,11 +43,11 @@ Route::prefix('admin')->group(function () {
             ])->onlyInput('email');
         }
 
-        if (! Auth::user()->isAdmin()) {
+        if (! Auth::user()->canAccessAdminPanel()) {
             Auth::logout();
 
             return back()->withErrors([
-                'email' => 'Hanya admin yang boleh login ke panel ini.',
+                'email' => 'Hanya admin aktif yang boleh login ke panel ini.',
             ])->onlyInput('email');
         }
 
@@ -76,6 +77,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('admin.dashboard');
+
+    Route::get('/audit-logs', [AuditLogController::class, 'index'])
+        ->middleware('super_admin')
+        ->name('admin.audit-logs.index');
 
     // Complaints
     Route::get('/complaints', [ComplaintController::class, 'index'])

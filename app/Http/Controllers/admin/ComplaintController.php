@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdminAuditLog;
 use App\Models\Category;
 use App\Models\Complaint;
 use App\Models\User;
@@ -25,7 +26,14 @@ class ComplaintController extends Controller
         $data = $this->validatedData($request);
         $data['is_anonymous'] = $request->boolean('is_anonymous');
 
-        Complaint::create($data);
+        $complaint = Complaint::create($data);
+
+        AdminAuditLog::record(
+            'complaint.created',
+            $complaint,
+            null,
+            AdminAuditLog::snapshot($complaint, $this->complaintAuditFields())
+        );
 
         return back()->with('success', 'Pengaduan berhasil ditambahkan.');
     }
@@ -44,14 +52,34 @@ class ComplaintController extends Controller
         $data = $this->validatedData($request);
         $data['is_anonymous'] = $request->boolean('is_anonymous');
 
+        $before = AdminAuditLog::snapshot($complaint, $this->complaintAuditFields());
+
         $complaint->update($data);
+
+        $after = AdminAuditLog::snapshot($complaint, $this->complaintAuditFields());
+        $action = $before['status'] !== $after['status']
+            ? 'complaint.status_changed'
+            : 'complaint.updated';
+
+        if ($before !== $after) {
+            AdminAuditLog::record($action, $complaint, $before, $after);
+        }
 
         return back()->with('success', 'Pengaduan berhasil diperbarui.');
     }
 
     public function destroy(Complaint $complaint)
     {
+        $before = AdminAuditLog::snapshot($complaint, $this->complaintAuditFields());
+
         $complaint->delete();
+
+        AdminAuditLog::record(
+            'complaint.soft_deleted',
+            $complaint,
+            $before,
+            AdminAuditLog::snapshot($complaint, $this->complaintAuditFields())
+        );
 
         return redirect()
             ->route('admin.complaints.index')
@@ -68,5 +96,20 @@ class ComplaintController extends Controller
             'location' => ['nullable', 'string', 'max:255'],
             'status' => ['required', Rule::in(['menunggu', 'diproses', 'selesai', 'ditolak'])],
         ]);
+    }
+
+    private function complaintAuditFields(): array
+    {
+        return [
+            'id',
+            'user_id',
+            'category_id',
+            'title',
+            'description',
+            'location',
+            'is_anonymous',
+            'status',
+            'deleted_at',
+        ];
     }
 }

@@ -34,4 +34,13 @@ class UserFactory extends Factory
             'name' => 'Admin Keluhin',
         ]);
     }
+
+    public function superAdmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'super_admin',
+            'email' => 'superadmin@keluhin.com',
+            'name' => 'Super Admin Keluhin',
+        ]);
+    }
 }

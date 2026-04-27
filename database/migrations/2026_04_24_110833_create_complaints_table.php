@@ -24,6 +24,7 @@ return new class extends Migration {
     $table->boolean('is_anonymous')->default(false);
 
     $table->timestamps();
+    $table->softDeletes();
 });
     }
 

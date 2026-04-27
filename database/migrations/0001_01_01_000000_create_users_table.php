@@ -20,10 +20,10 @@ return new class extends Migration
     $table->string('password');
     $table->rememberToken();
 
-    // ✅ TAMBAHKAN INI
-    $table->enum('role', ['admin', 'user'])->default('user');
+    $table->enum('role', ['super_admin', 'admin', 'user'])->default('user');
 
     $table->timestamps();
+    $table->softDeletes();
 });
     }
 

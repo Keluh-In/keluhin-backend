@@ -12,7 +12,7 @@ class AdminMiddleware
     {
         $user = $request->user();
 
-        if (! $user || ! $user->isAdmin() || $user->isBanned()) {
+        if (! $user || ! $user->canAccessAdminPanel()) {
             Auth::logout();
 
             $request->session()->invalidate();
