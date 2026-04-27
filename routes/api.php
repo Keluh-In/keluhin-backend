@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ComplaintController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\ResponseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,6 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/complaints', [ComplaintController::class, 'index']);
     Route::post('/complaints', [ComplaintController::class, 'store']);
     Route::get('/complaints/{id}', [ComplaintController::class, 'show']);
+    Route::get('/complaints/{id}/responses', [ResponseController::class, 'index']);
     Route::put('/complaints/{id}', [ComplaintController::class, 'update']);
     Route::delete('/complaints/{id}', [ComplaintController::class, 'destroy']);
 

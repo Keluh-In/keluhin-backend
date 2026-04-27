@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Profile\UpdateProfileRequest;
 use Illuminate\Http\Request;
 use App\Helpers\ResponseHelper;
 
@@ -19,14 +20,11 @@ class ProfileController extends Controller
     /**
      * UPDATE PROFILE
      */
-    public function update(Request $request)
+    public function update(UpdateProfileRequest $request)
     {
         $user = $request->user();
 
-        $user->update([
-            'name' => $request->name ?? $user->name,
-            'email' => $request->email ?? $user->email,
-        ]);
+        $user->update($request->validated());
 
         return ResponseHelper::success($user, 'Profile updated');
     }

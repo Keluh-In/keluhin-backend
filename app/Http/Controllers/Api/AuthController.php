@@ -41,6 +41,10 @@ class AuthController extends Controller
             return ResponseHelper::error('Email atau password salah', 401);
         }
 
+        if ($user->isBanned()) {
+            return ResponseHelper::error('Akun ini sedang diban.', 403);
+        }
+
         $token = $user->createToken('keluhin-token')->plainTextToken;
 
         return ResponseHelper::success([
@@ -54,7 +58,7 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        auth()->user()->tokens()->delete();
+        auth()->user()->currentAccessToken()?->delete();
 
         return ResponseHelper::success(null, 'Logout berhasil');
     }

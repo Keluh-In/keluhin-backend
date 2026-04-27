@@ -28,7 +28,6 @@ class UpdateComplaintRequest extends FormRequest
             'location' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'is_anonymous' => 'nullable|boolean',
-            'status' => 'nullable|in:menunggu,diproses,selesai,ditolak',
         ];
     }
 
@@ -42,7 +41,6 @@ class UpdateComplaintRequest extends FormRequest
             'image.image' => 'File harus gambar',
             'image.mimes' => 'Format harus jpg, jpeg, png',
             'image.max' => 'Maksimal 2MB',
-            'status.in' => 'Status tidak valid',
         ];
     }
 }

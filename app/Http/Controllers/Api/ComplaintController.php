@@ -82,6 +82,7 @@ class ComplaintController extends Controller
         }
 
         $data = $request->validated();
+        unset($data['status']);
 
         if ($request->hasFile('image')) {
             $data['image'] = $this->fileUpload->upload($request->file('image'));

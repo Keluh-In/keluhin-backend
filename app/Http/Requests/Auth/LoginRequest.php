@@ -4,10 +4,10 @@ namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegisterRequest extends FormRequest
+class LoginRequest extends FormRequest
 {
     /**
-     * Semua user boleh register
+     * Semua user boleh login
      */
     public function authorize(): bool
     {
@@ -15,14 +15,13 @@ class RegisterRequest extends FormRequest
     }
 
     /**
-     * VALIDASI REGISTER
+     * VALIDASI LOGIN
      */
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:100',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6|confirmed',
+            'email' => 'required|email',
+            'password' => 'required|min:6',
         ];
     }
 
@@ -32,13 +31,10 @@ class RegisterRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'Nama wajib diisi',
             'email.required' => 'Email wajib diisi',
             'email.email' => 'Format email tidak valid',
-            'email.unique' => 'Email sudah terdaftar',
             'password.required' => 'Password wajib diisi',
             'password.min' => 'Password minimal 6 karakter',
-            'password.confirmed' => 'Konfirmasi password tidak cocok',
         ];
     }
 }

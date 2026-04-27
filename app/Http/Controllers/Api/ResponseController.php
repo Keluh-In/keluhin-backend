@@ -11,6 +11,22 @@ use App\Helpers\ResponseHelper;
 class ResponseController extends Controller
 {
     /**
+     * USER VIEW RESPONSES FOR OWN COMPLAINT
+     */
+    public function index($complaintId)
+    {
+        $complaint = Complaint::where('user_id', auth()->id())->find($complaintId);
+
+        if (! $complaint) {
+            return ResponseHelper::notFound('Pengaduan tidak ditemukan');
+        }
+
+        $responses = $complaint->responses()->with('admin:id,name')->get();
+
+        return ResponseHelper::success($responses);
+    }
+
+    /**
      * ADMIN CREATE RESPONSE
      */
     public function store(Request $request, $complaintId)
