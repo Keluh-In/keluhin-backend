@@ -42,6 +42,14 @@ Route::prefix('admin')->group(function () {
             ])->onlyInput('email');
         }
 
+        if (! Auth::user()->isAdmin()) {
+            Auth::logout();
+
+            return back()->withErrors([
+                'email' => 'Hanya admin yang boleh login ke panel ini.',
+            ])->onlyInput('email');
+        }
+
         $request->session()->regenerate();
 
         return redirect('/admin/dashboard');
@@ -63,7 +71,7 @@ Route::prefix('admin')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth'])->prefix('admin')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])
