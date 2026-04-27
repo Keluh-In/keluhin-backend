@@ -37,6 +37,14 @@ Route::prefix('admin')->group(function () {
             ])->onlyInput('email');
         }
 
+        if (Auth::user()->isBanned()) {
+            Auth::logout();
+
+            return back()->withErrors([
+                'email' => 'Akun ini sedang diban.',
+            ])->onlyInput('email');
+        }
+
         $request->session()->regenerate();
 
         return redirect('/admin/dashboard');
@@ -114,6 +122,10 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         ->name('admin.users.store');
     Route::put('/users/{user}', [UserController::class, 'update'])
         ->name('admin.users.update');
+    Route::post('/users/{user}/ban', [UserController::class, 'ban'])
+        ->name('admin.users.ban');
+    Route::post('/users/{user}/unban', [UserController::class, 'unban'])
+        ->name('admin.users.unban');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])
         ->name('admin.users.destroy');
 });

@@ -8,6 +8,7 @@
     $totalUsers = $users->count();
     $adminUsers = $users->where('role', 'admin')->count();
     $regularUsers = $users->where('role', 'user')->count();
+    $bannedUsers = $users->whereNotNull('banned_at')->count();
 @endphp
 
 <div class="metric-strip">
@@ -29,10 +30,10 @@
 
     <div class="card mini-metric">
         <div>
-            <div class="mini-metric-label">Pengguna</div>
-            <div class="mini-metric-value">{{ number_format($regularUsers) }}</div>
+            <div class="mini-metric-label">Diban</div>
+            <div class="mini-metric-value">{{ number_format($bannedUsers) }}</div>
         </div>
-        <span class="mini-metric-icon"><i class="bi bi-person"></i></span>
+        <span class="mini-metric-icon"><i class="bi bi-slash-circle"></i></span>
     </div>
 </div>
 
@@ -57,6 +58,7 @@
                     <th>Nama</th>
                     <th>Email</th>
                     <th>Role</th>
+                    <th>Status</th>
                     <th>Pengaduan</th>
                     <th class="text-end">Aksi</th>
                 </tr>
@@ -72,12 +74,32 @@
                                 {{ ucfirst($user->role) }}
                             </span>
                         </td>
+                        <td>
+                            @if($user->isBanned())
+                                <span class="badge-soft badge-ditolak">Banned</span>
+                            @else
+                                <span class="badge-soft badge-selesai">Aktif</span>
+                            @endif
+                        </td>
                         <td>{{ number_format($user->complaints_count ?? 0) }}</td>
                         <td>
                             <div class="table-actions">
                                 <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#editUserModal-{{ $user->id }}">
                                     Update
                                 </button>
+
+                                @if($user->isBanned())
+                                    <form method="POST" action="{{ route('admin.users.unban', $user) }}">
+                                        @csrf
+                                        <button class="btn btn-sm btn-primary" type="submit">Unban</button>
+                                    </form>
+                                @else
+                                    <form method="POST" action="{{ route('admin.users.ban', $user) }}">
+                                        @csrf
+                                        <button class="btn btn-sm btn-soft-danger" type="submit" @disabled(auth()->id() === $user->id)>Ban</button>
+                                    </form>
+                                @endif
+
                                 <form method="POST" action="{{ route('admin.users.destroy', $user) }}">
                                     @csrf
                                     @method('DELETE')
@@ -88,7 +110,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="empty-state">Belum ada user.</td>
+                        <td colspan="7" class="empty-state">Belum ada user.</td>
                     </tr>
                 @endforelse
             </tbody>

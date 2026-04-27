@@ -78,6 +78,28 @@ class UserController extends Controller
         return back()->with('success', 'User berhasil dihapus.');
     }
 
+    public function ban(User $user)
+    {
+        if (auth()->id() === $user->id) {
+            return back()->withErrors(['user' => 'Akun yang sedang digunakan tidak bisa diban.']);
+        }
+
+        $user->forceFill([
+            'banned_at' => now(),
+        ])->save();
+
+        return back()->with('success', 'User berhasil diban.');
+    }
+
+    public function unban(User $user)
+    {
+        $user->forceFill([
+            'banned_at' => null,
+        ])->save();
+
+        return back()->with('success', 'Ban user berhasil dibuka.');
+    }
+
     public function show($id)
     {
         $user = User::with('complaints')->findOrFail($id);
