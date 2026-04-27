@@ -2,16 +2,16 @@
 
 ## 1. Ringkasan
 
-Admin Dashboard KELUH.IN adalah panel internal untuk mengelola data pengaduan, kategori, dan akun pengguna. Panel ini hanya boleh diakses oleh akun dengan role admin atau role administratif lain yang disetujui, seperti `super_admin` di masa depan.
+Admin Dashboard KELUH.IN adalah panel internal untuk mengelola data pengaduan, kategori, dan akun pengguna. Panel ini hanya boleh diakses oleh akun dengan role `admin` atau `super_admin`.
 
 Dokumen ini menjadi acuan saat menambah fitur baru agar alur data, permission, tampilan UI, validasi, routing, dan pola CRUD tetap seragam.
 
 ## 2. Tujuan Produk
 
 - Menyediakan panel admin yang jelas, rapi, dan mudah dipakai untuk operasional pengaduan.
-- Menjaga data pengaduan, kategori, dan user agar tidak bentrok antarfitur.
+- Menjaga data pengaduan, kategori, dan pengguna agar tidak bentrok antarfitur.
 - Membuat pola pengembangan fitur admin konsisten dan mudah dipelihara.
-- Memisahkan pengalaman admin dashboard dari pengalaman user biasa.
+- Memisahkan pengalaman admin dashboard dari pengalaman pengguna biasa.
 
 ## 3. Scope
 
@@ -22,28 +22,27 @@ Termasuk:
 - Dashboard analytics.
 - CRUD pengaduan.
 - CRUD kategori.
-- CRUD users.
-- Ban/unban user.
+- CRUD pengguna.
+- Ban/unban pengguna.
 - Detail pengaduan.
 - Fitur admin baru yang ditambahkan di masa depan.
 
 Tidak termasuk:
-- API user biasa.
-- Aplikasi mobile/frontend user.
+- API pengguna biasa.
+- Aplikasi mobile/frontend pengguna.
 - Public landing page.
 
 ## 4. Role dan Akses
 
-### Role Saat Ini
+### Role Target
 
 - `admin`: boleh login ke Admin Dashboard dan mengelola data admin.
-- `user`: tidak boleh login ke Admin Dashboard. User biasa hanya menggunakan API.
+- `super_admin`: boleh login ke Admin Dashboard dan mengelola aksi administratif sensitif.
+- `user`: tidak boleh login ke Admin Dashboard. Pengguna biasa hanya menggunakan API.
 
-### Role Masa Depan
+### Aturan Role Administratif
 
-- `super_admin`: role administratif tingkat lebih tinggi.
-
-Saat `super_admin` ditambahkan, permission harus didefinisikan eksplisit. Jangan hanya mengecek `role !== user`. Gunakan helper atau policy yang jelas, misalnya:
+Permission `admin` dan `super_admin` harus didefinisikan eksplisit. Jangan hanya mengecek `role !== user`. Gunakan helper atau policy yang jelas, misalnya:
 
 - `isAdmin()`
 - `isSuperAdmin()`
@@ -53,7 +52,7 @@ Saat `super_admin` ditambahkan, permission harus didefinisikan eksplisit. Jangan
 
 - Hanya akun admin aktif yang boleh login ke panel admin.
 - Akun banned tidak boleh login.
-- Jika session lama milik user biasa masih aktif, middleware admin harus memaksa logout dan redirect ke login.
+- Jika session lama milik pengguna biasa masih aktif, middleware admin harus memaksa logout dan redirect ke login.
 
 ## 5. Data Utama
 
@@ -90,33 +89,33 @@ Kategori digunakan untuk mengelompokkan pengaduan.
 Aturan:
 - Nama kategori harus unik.
 - Kategori digunakan sebagai relasi pengaduan.
-- Jika kategori sudah dipakai pengaduan, hindari hard delete di masa depan. Gunakan soft delete atau mekanisme archive.
+- Jika kategori sudah dipakai pengaduan, gunakan soft delete atau mekanisme archive.
 
-### Users
+### Pengguna
 
-User dikelola dari Admin Dashboard.
+Pengguna dikelola dari Admin Dashboard.
 
 Aturan:
-- Admin dapat membuat user baru.
+- Admin dapat membuat pengguna baru.
 - Admin dapat mengubah nama, email, password, dan role.
-- Admin dapat ban/unban user.
+- Admin dapat ban/unban pengguna.
 - Admin tidak boleh menghapus atau ban akun yang sedang digunakan sendiri.
-- User biasa tidak login ke Admin Dashboard.
+- Pengguna biasa tidak login ke Admin Dashboard.
 
 ## 6. Soft Delete
 
-Standar keamanan data ke depan adalah soft delete.
+Standar keamanan data adalah soft delete.
 
-Rekomendasi implementasi:
+Keputusan implementasi:
 - Tambahkan `SoftDeletes` pada model utama yang dikelola admin:
   - `Complaint`
   - `Category`
   - `User`
 - Tambahkan kolom `deleted_at` pada tabel terkait.
 - Tombol `Hapus` di UI melakukan soft delete, bukan hard delete.
-- Fitur restore/permanent delete hanya boleh tersedia untuk `super_admin` jika role tersebut sudah dibuat.
+- Fitur restore/permanent delete hanya boleh tersedia untuk `super_admin`.
 
-Catatan migrasi: fitur yang saat ini masih hard delete sebaiknya dimigrasikan bertahap ke soft delete agar histori data tidak hilang.
+Catatan migrasi: fitur yang saat ini masih hard delete harus dimigrasikan bertahap ke soft delete agar histori data tidak hilang.
 
 ## 7. Pola CRUD Admin
 
@@ -152,6 +151,8 @@ Gunakan prefix admin:
   - `POST /admin/users/{user}/ban`
   - `POST /admin/users/{user}/unban`
 
+Catatan istilah: label UI memakai `Pengguna`. Nama route teknis seperti `/admin/users` boleh tetap dipakai selama belum ada kebutuhan migrasi route.
+
 Semua route admin harus memakai middleware:
 
 - `auth`
@@ -173,7 +174,8 @@ Controller admin harus:
 - Melakukan validasi di controller atau FormRequest.
 - Mengembalikan redirect dengan `success` setelah aksi berhasil.
 - Mengembalikan `withErrors()` untuk aksi yang ditolak.
-- Tidak mencampur logika API user dengan logika admin dashboard.
+- Tidak mencampur logika API pengguna dengan logika admin dashboard.
+- Menggunakan controller terpisah untuk halaman admin dan fitur pengguna biasa.
 
 Contoh respons sukses:
 
@@ -181,9 +183,22 @@ Contoh respons sukses:
 return back()->with('success', 'Data berhasil diperbarui.');
 ```
 
-Untuk delete dari halaman detail, redirect ke halaman index agar user tidak kembali ke resource yang sudah dihapus.
+Untuk delete dari halaman detail, redirect ke halaman index agar pengguna tidak kembali ke resource yang sudah dihapus.
 
-## 10. Validasi Data
+## 10. Pemisahan Admin dan Pengguna
+
+Halaman admin dan halaman pengguna harus dipisahkan.
+
+Aturan:
+- Admin Dashboard memakai prefix `/admin`.
+- Admin Dashboard memakai middleware `auth` dan `admin`.
+- Admin Dashboard memakai controller, view, layout, dan navigation sendiri.
+- Pengguna biasa memakai API atau frontend pengguna yang terpisah.
+- Jika halaman web pengguna dibuat di masa depan, gunakan prefix, controller, dan layout yang berbeda dari Admin Dashboard.
+
+Tujuan pemisahan ini adalah menjaga permission tetap jelas, mencegah kebocoran fitur admin ke pengguna biasa, dan membuat UI admin bisa berkembang tanpa mengganggu pengalaman pengguna.
+
+## 11. Validasi Data
 
 Validasi wajib dilakukan sebelum create/update.
 
@@ -196,7 +211,7 @@ Aturan umum:
 
 Jangan percaya input dari hidden field sebagai data final tanpa validasi.
 
-## 11. Design System Admin
+## 12. Design System Admin
 
 Style admin saat ini menjadi standar.
 
@@ -215,7 +230,7 @@ Style admin saat ini menjadi standar.
 
 - Sidebar kiri untuk navigasi.
 - Content area centered dengan max width.
-- Topbar berisi title, subtitle, dan user pill.
+- Topbar berisi title, subtitle, dan pill akun.
 - Dashboard dan halaman list menggunakan grid/card.
 
 ### Komponen
@@ -259,7 +274,7 @@ Halaman detail digunakan untuk:
 - Banyak metadata.
 - Riwayat atau response.
 
-## 12. Bahasa UI
+## 13. Bahasa UI
 
 Semua UI admin harus menggunakan Bahasa Indonesia.
 
@@ -273,12 +288,12 @@ Standar istilah:
 - `Batal`
 - `Pengaduan`
 - `Kategori`
-- `Users` sebaiknya diganti bertahap menjadi `Pengguna`.
+- `Pengguna`, bukan `Users`.
 - `Diban` atau `Banned` sebaiknya diseragamkan. Rekomendasi: gunakan `Diban`.
 
 Saat menambah fitur baru, hindari campuran istilah Indonesia/English dalam satu halaman.
 
-## 13. Admin Dashboard Metrics
+## 14. Admin Dashboard Metrics
 
 Metric harus berasal dari query yang sesuai dengan data sebenarnya.
 
@@ -288,27 +303,46 @@ Contoh:
 - Diproses: count status `diproses`.
 - Selesai: count status `selesai`.
 - Ditolak: count status `ditolak`.
-- Diban: count user dengan `banned_at` tidak null.
+- Diban: count pengguna dengan `banned_at` tidak null.
 
 Jangan hardcode angka di view.
 
-## 14. Permission Rules
+## 15. Permission Rules
 
 Aturan saat ini:
 
-- Admin boleh mengelola pengaduan, kategori, dan user.
+- Admin boleh mengelola pengaduan, kategori, dan pengguna.
 - Admin tidak boleh ban diri sendiri.
 - Admin tidak boleh hapus diri sendiri.
-- Banned user tidak boleh login.
-- User biasa tidak boleh akses admin panel.
+- Pengguna diban tidak boleh login.
+- Pengguna biasa tidak boleh akses admin panel.
 
-Aturan masa depan untuk `super_admin`:
+Aturan untuk `super_admin`:
 
 - Permanent delete hanya untuk `super_admin`.
 - Restore soft-deleted data hanya untuk `super_admin`.
 - Mengubah role admin lain sebaiknya hanya untuk `super_admin`.
 
-## 15. Error Handling dan Feedback
+## 16. Audit Log Admin
+
+Admin Dashboard harus punya audit log untuk aksi penting.
+
+Aksi minimal yang dicatat:
+- Create, update, soft delete, restore, dan permanent delete data admin.
+- Ban dan unban pengguna.
+- Perubahan status pengaduan.
+- Perubahan role pengguna.
+
+Data audit log minimal:
+- Aktor admin.
+- Aksi yang dilakukan.
+- Resource yang terdampak.
+- Nilai sebelum dan sesudah jika relevan.
+- Waktu aksi.
+
+Audit log hanya boleh dilihat oleh `super_admin`, kecuali ada kebutuhan operasional yang disetujui.
+
+## 17. Error Handling dan Feedback
 
 Setiap aksi create/update/delete/ban/unban harus memberi feedback:
 
@@ -319,16 +353,16 @@ Pesan harus singkat dan jelas:
 
 - `Pengaduan berhasil ditambahkan.`
 - `Kategori berhasil diperbarui.`
-- `User berhasil diban.`
+- `Pengguna berhasil diban.`
 - `Akun yang sedang digunakan tidak bisa dihapus.`
 
-## 16. Checklist Sebelum Menambah Fitur Admin
+## 18. Checklist Sebelum Menambah Fitur Admin
 
 Sebelum menambah fitur baru, pastikan:
 
 - Route memakai prefix `/admin`.
 - Route memakai middleware `auth` dan `admin`.
-- Controller tidak mencampur logic API user.
+- Controller tidak mencampur logika API pengguna.
 - Ada validasi request.
 - UI mengikuti pola table + modal.
 - Semua label memakai Bahasa Indonesia.
@@ -338,12 +372,10 @@ Sebelum menambah fitur baru, pastikan:
 - View berhasil dikompilasi dengan `php artisan view:cache`.
 - Test minimal berjalan dengan `php artisan test`.
 
-## 17. Open Decisions
+## 19. Keputusan Final
 
-Keputusan yang belum final:
-
-- Kapan role `super_admin` dibuat.
-- Permission detail antara `admin` dan `super_admin`.
-- Kapan migrasi soft delete diterapkan untuk model utama.
-- Apakah istilah `Users` akan diganti total menjadi `Pengguna`.
-- Apakah halaman admin akan punya audit log untuk aksi penting seperti delete, ban, dan perubahan status.
+- Role `super_admin` dibuat sebagai role resmi untuk aksi administratif sensitif.
+- Model utama yang dikelola admin dimigrasikan ke soft delete.
+- Istilah UI `Users` diganti menjadi `Pengguna`.
+- Admin Dashboard punya audit log untuk aksi penting seperti delete, ban, perubahan status, dan perubahan role.
+- Halaman admin dan halaman pengguna dipisahkan dari sisi route, middleware, controller, view, layout, dan navigation.
