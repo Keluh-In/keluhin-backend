@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\ComplaintController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\ComplaintResponseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -89,6 +90,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         ->name('admin.complaints.store');
     Route::get('/complaints/{complaint}', [ComplaintController::class, 'show'])
         ->name('admin.complaints.show');
+    Route::post('/complaints/{complaint}/responses', [ComplaintResponseController::class, 'store'])
+        ->name('admin.complaint-responses.store');
+    Route::put('/complaints/{complaint}/responses/{response}', [ComplaintResponseController::class, 'update'])
+        ->name('admin.complaint-responses.update');
+    Route::delete('/complaints/{complaint}/responses/{response}', [ComplaintResponseController::class, 'destroy'])
+        ->name('admin.complaint-responses.destroy');
     Route::put('/complaints/{complaint}', [ComplaintController::class, 'update'])
         ->name('admin.complaints.update');
     Route::delete('/complaints/{complaint}', [ComplaintController::class, 'destroy'])

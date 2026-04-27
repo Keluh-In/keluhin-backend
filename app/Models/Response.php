@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Response extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'complaint_id',
         'admin_id',

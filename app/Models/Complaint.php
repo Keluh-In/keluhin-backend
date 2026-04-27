@@ -42,6 +42,14 @@ class Complaint extends Model
      */
     public function response()
     {
-        return $this->hasOne(Response::class);
+        return $this->hasOne(Response::class)->latestOfMany();
+    }
+
+    /**
+     * RELASI: complaint punya banyak tanggapan admin
+     */
+    public function responses()
+    {
+        return $this->hasMany(Response::class)->latest('id');
     }
 }

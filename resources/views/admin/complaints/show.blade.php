@@ -83,6 +83,24 @@
         margin-bottom: 20px;
     }
 
+    .response-list {
+        display: grid;
+        gap: 14px;
+    }
+
+    .response-item {
+        border: 1px solid #edf1f5;
+        border-radius: 8px;
+        padding: 16px;
+        background: #fbfcfe;
+    }
+
+    .response-meta {
+        color: #6b7280;
+        font-size: .84rem;
+        margin-top: 8px;
+    }
+
     @media (max-width: 991.98px) {
         .detail-grid {
             grid-template-columns: 1fr;
@@ -169,16 +187,92 @@
         </div>
     </aside>
 
-    @if($complaint->response)
-        <section class="card detail-panel">
-            <h2 class="section-title mb-3">Respon Admin</h2>
-            <div class="detail-description">{{ $complaint->response->message }}</div>
-            <div class="section-subtitle mt-3">
-                Oleh {{ $complaint->response->admin->name ?? 'Admin' }} pada {{ optional($complaint->response->created_at)->format('d M Y H:i') }}
+    <section class="card detail-panel">
+        <div class="section-header px-0 pt-0">
+            <div>
+                <h2 class="section-title">Tanggapan Admin</h2>
+                <div class="section-subtitle">Kelola seluruh tanggapan untuk pengaduan ini.</div>
             </div>
-        </section>
-    @endif
+
+            <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#createResponseModal">
+                <i class="bi bi-plus-lg"></i>
+                Tambah Tanggapan
+            </button>
+        </div>
+
+        @if($complaint->responses->isEmpty())
+            <div class="empty-state">Belum ada tanggapan.</div>
+        @else
+            <div class="response-list">
+                @foreach($complaint->responses as $response)
+                    <article class="response-item">
+                        <div class="detail-description mt-0">{{ $response->message }}</div>
+                        <div class="response-meta">
+                            Oleh {{ $response->admin->name ?? 'Admin' }} pada {{ optional($response->created_at)->format('d M Y H:i') }}
+                            @if($response->updated_at && $response->updated_at->ne($response->created_at))
+                                · Diedit {{ optional($response->updated_at)->format('d M Y H:i') }}
+                            @endif
+                        </div>
+
+                        <div class="table-actions mt-3 justify-content-start">
+                            <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#editResponseModal-{{ $response->id }}">
+                                Update
+                            </button>
+                            <form method="POST" action="{{ route('admin.complaint-responses.destroy', [$complaint, $response]) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-sm btn-soft-danger" type="submit">Hapus</button>
+                            </form>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+        @endif
+    </section>
 </div>
+
+<div class="modal fade" id="createResponseModal" tabindex="-1" aria-labelledby="createResponseModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content" method="POST" action="{{ route('admin.complaint-responses.store', $complaint) }}">
+            @csrf
+            <div class="modal-header">
+                <h2 class="modal-title" id="createResponseModalLabel">Tambah Tanggapan</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <label class="form-label" for="create_response_message">Tanggapan</label>
+                <textarea id="create_response_message" name="message" rows="5" class="form-control" required>{{ old('message') }}</textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-light" type="button" data-bs-dismiss="modal">Batal</button>
+                <button class="btn btn-primary" type="submit">Tambah Tanggapan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@foreach($complaint->responses as $response)
+    <div class="modal fade" id="editResponseModal-{{ $response->id }}" tabindex="-1" aria-labelledby="editResponseModalLabel-{{ $response->id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <form class="modal-content" method="POST" action="{{ route('admin.complaint-responses.update', [$complaint, $response]) }}">
+                @csrf
+                @method('PUT')
+                <div class="modal-header">
+                    <h2 class="modal-title" id="editResponseModalLabel-{{ $response->id }}">Update Tanggapan</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <label class="form-label" for="edit_response_message_{{ $response->id }}">Tanggapan</label>
+                    <textarea id="edit_response_message_{{ $response->id }}" name="message" rows="5" class="form-control" required>{{ $response->message }}</textarea>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-light" type="button" data-bs-dismiss="modal">Batal</button>
+                    <button class="btn btn-primary" type="submit">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+@endforeach
 
 <div class="modal fade" id="editComplaintModal" tabindex="-1" aria-labelledby="editComplaintModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
