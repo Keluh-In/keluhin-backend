@@ -144,6 +144,10 @@
             <div class="fw-semibold mb-1">Contoh akun admin</div>
             <div>Email: <strong>admin@keluhin.com</strong></div>
             <div>Password: <strong>password123</strong></div>
+            <hr class="my-2">
+            <div class="fw-semibold mb-1">Contoh akun super admin</div>
+            <div>Email: <strong>superadmin@keluhin.com</strong></div>
+            <div>Password: <strong>password123</strong></div>
         </div>
 
         <form method="POST" action="/admin/login">
