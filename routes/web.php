@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ComplaintResponseController;
+use App\Http\Controllers\Admin\ComplaintAttachmentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -96,6 +97,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         ->name('admin.complaint-responses.update');
     Route::delete('/complaints/{complaint}/responses/{response}', [ComplaintResponseController::class, 'destroy'])
         ->name('admin.complaint-responses.destroy');
+    Route::post('/complaints/{complaint}/attachments', [ComplaintAttachmentController::class, 'store'])
+        ->name('admin.complaint-attachments.store');
+    Route::put('/complaints/{complaint}/attachments/{attachment}', [ComplaintAttachmentController::class, 'update'])
+        ->name('admin.complaint-attachments.update');
+    Route::delete('/complaints/{complaint}/attachments/{attachment}', [ComplaintAttachmentController::class, 'destroy'])
+        ->name('admin.complaint-attachments.destroy');
+    Route::get('/complaints/{complaint}/attachments/{attachment}/file', [ComplaintAttachmentController::class, 'file'])
+        ->name('admin.complaint-attachments.file');
+    Route::post('/complaints/{complaint}/attachments/{attachment}/validate', [ComplaintAttachmentController::class, 'validateAttachment'])
+        ->name('admin.complaint-attachments.validate');
     Route::put('/complaints/{complaint}', [ComplaintController::class, 'update'])
         ->name('admin.complaints.update');
     Route::delete('/complaints/{complaint}', [ComplaintController::class, 'destroy'])

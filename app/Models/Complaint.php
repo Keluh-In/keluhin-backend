@@ -52,4 +52,12 @@ class Complaint extends Model
     {
         return $this->hasMany(Response::class)->latest('id');
     }
+
+    /**
+     * RELASI: complaint punya banyak lampiran bukti
+     */
+    public function attachments()
+    {
+        return $this->hasMany(ComplaintAttachment::class)->latest('id');
+    }
 }

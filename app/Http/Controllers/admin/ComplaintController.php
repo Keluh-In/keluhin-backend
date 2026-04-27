@@ -40,7 +40,7 @@ class ComplaintController extends Controller
 
     public function show(Complaint $complaint)
     {
-        $complaint->load(['user', 'category', 'responses.admin', 'response.admin']);
+        $complaint->load(['user', 'category', 'responses.admin', 'response.admin', 'attachments.uploader', 'attachments.validator']);
         $categories = Category::orderBy('name')->get();
         $users = User::orderBy('name')->get();
 

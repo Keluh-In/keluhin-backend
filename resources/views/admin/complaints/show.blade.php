@@ -101,6 +101,27 @@
         margin-top: 8px;
     }
 
+        .attachment-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .attachment-item {
+            border: 1px solid #edf1f5;
+            border-radius: 8px;
+            padding: 16px;
+            background: #fbfcfe;
+        }
+
+        .attachment-preview {
+            width: 100%;
+            max-height: 220px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #edf1f5;
+            margin-bottom: 10px;
+        }
+
     @media (max-width: 991.98px) {
         .detail-grid {
             grid-template-columns: 1fr;
@@ -229,7 +250,150 @@
             </div>
         @endif
     </section>
+
+    <section class="card detail-panel">
+        <div class="section-header px-0 pt-0">
+            <div>
+                <h2 class="section-title">Lampiran Bukti</h2>
+                <div class="section-subtitle">Upload, validasi, dan kelola lampiran pengaduan.</div>
+            </div>
+
+            <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#createAttachmentModal">
+                <i class="bi bi-plus-lg"></i>
+                Tambah Lampiran
+            </button>
+        </div>
+
+        @if($complaint->attachments->isEmpty())
+            <div class="empty-state">Belum ada lampiran.</div>
+        @else
+            <div class="attachment-list">
+                @foreach($complaint->attachments as $attachment)
+                    <article class="attachment-item">
+                        @if(str_starts_with($attachment->mime_type, 'image/'))
+                            <img class="attachment-preview" src="{{ route('admin.complaint-attachments.file', [$complaint, $attachment]) }}" alt="Lampiran {{ $attachment->original_name }}">
+                        @endif
+
+                        <div class="fw-semibold">{{ $attachment->original_name }}</div>
+                        <div class="response-meta mt-1">
+                            {{ strtoupper($attachment->mime_type) }} · {{ number_format($attachment->file_size / 1024, 1) }} KB
+                        </div>
+                        <div class="response-meta mt-1">
+                            Diunggah oleh {{ $attachment->uploader->name ?? 'Admin' }} pada {{ optional($attachment->created_at)->format('d M Y H:i') }}
+                        </div>
+
+                        <div class="mt-2">
+                            @if($attachment->is_validated)
+                                <span class="badge-soft badge-selesai">Tervalidasi</span>
+                            @else
+                                <span class="badge-soft badge-ditolak">Belum Validasi</span>
+                            @endif
+                        </div>
+
+                        @if($attachment->validation_note)
+                            <div class="response-meta mt-2">Catatan validasi: {{ $attachment->validation_note }}</div>
+                        @endif
+
+                        <div class="table-actions mt-3 justify-content-start">
+                            <a class="btn btn-sm btn-light" href="{{ route('admin.complaint-attachments.file', [$complaint, $attachment]) }}" target="_blank" rel="noopener noreferrer">
+                                Lihat
+                            </a>
+
+                            <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#editAttachmentModal-{{ $attachment->id }}">
+                                Update
+                            </button>
+
+                            <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#validateAttachmentModal-{{ $attachment->id }}">
+                                Validasi
+                            </button>
+
+                            <form method="POST" action="{{ route('admin.complaint-attachments.destroy', [$complaint, $attachment]) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-sm btn-soft-danger" type="submit">Hapus</button>
+                            </form>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+        @endif
+    </section>
 </div>
+
+<div class="modal fade" id="createAttachmentModal" tabindex="-1" aria-labelledby="createAttachmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content" method="POST" action="{{ route('admin.complaint-attachments.store', $complaint) }}" enctype="multipart/form-data">
+            @csrf
+            <div class="modal-header">
+                <h2 class="modal-title" id="createAttachmentModalLabel">Tambah Lampiran</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <label class="form-label" for="create_attachment_file">Pilih Lampiran</label>
+                <input id="create_attachment_file" type="file" name="attachment" class="form-control" accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx" required>
+                <div class="section-subtitle mt-2">Format: JPG, PNG, WEBP, PDF, DOC, DOCX. Maks 5MB.</div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-light" type="button" data-bs-dismiss="modal">Batal</button>
+                <button class="btn btn-primary" type="submit">Tambah Lampiran</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@foreach($complaint->attachments as $attachment)
+    <div class="modal fade" id="editAttachmentModal-{{ $attachment->id }}" tabindex="-1" aria-labelledby="editAttachmentModalLabel-{{ $attachment->id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <form class="modal-content" method="POST" action="{{ route('admin.complaint-attachments.update', [$complaint, $attachment]) }}" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
+                <div class="modal-header">
+                    <h2 class="modal-title" id="editAttachmentModalLabel-{{ $attachment->id }}">Ganti Lampiran</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <label class="form-label" for="edit_attachment_file_{{ $attachment->id }}">Pilih File Baru</label>
+                    <input id="edit_attachment_file_{{ $attachment->id }}" type="file" name="attachment" class="form-control" accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx" required>
+                    <div class="section-subtitle mt-2">Validasi sebelumnya akan direset ketika file diganti.</div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-light" type="button" data-bs-dismiss="modal">Batal</button>
+                    <button class="btn btn-primary" type="submit">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal fade" id="validateAttachmentModal-{{ $attachment->id }}" tabindex="-1" aria-labelledby="validateAttachmentModalLabel-{{ $attachment->id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <form class="modal-content" method="POST" action="{{ route('admin.complaint-attachments.validate', [$complaint, $attachment]) }}">
+                @csrf
+                <div class="modal-header">
+                    <h2 class="modal-title" id="validateAttachmentModalLabel-{{ $attachment->id }}">Validasi Lampiran</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label" for="is_validated_{{ $attachment->id }}">Status Validasi</label>
+                        <select id="is_validated_{{ $attachment->id }}" name="is_validated" class="form-select" required>
+                            <option value="1" @selected($attachment->is_validated)>Tervalidasi</option>
+                            <option value="0" @selected(! $attachment->is_validated)>Belum Validasi</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="form-label" for="validation_note_{{ $attachment->id }}">Catatan Validasi</label>
+                        <textarea id="validation_note_{{ $attachment->id }}" name="validation_note" rows="4" class="form-control" placeholder="Opsional">{{ $attachment->validation_note }}</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-light" type="button" data-bs-dismiss="modal">Batal</button>
+                    <button class="btn btn-primary" type="submit">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+@endforeach
 
 <div class="modal fade" id="createResponseModal" tabindex="-1" aria-labelledby="createResponseModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
