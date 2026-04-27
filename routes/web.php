@@ -1,14 +1,11 @@
 <?php
 
-use App\Models\Complaint;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ComplaintController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\UserController;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
 Route::get('/', function () {
     return response()->json([
@@ -18,7 +15,7 @@ Route::get('/', function () {
 });
 
 Route::redirect('/login', '/admin/login');
-Route::redirect('/register', '/admin/register');
+Route::redirect('/register', '/admin/login');
 
 Route::prefix('admin')->group(function () {
     Route::get('/login', function () {
@@ -45,31 +42,6 @@ Route::prefix('admin')->group(function () {
             ])->onlyInput('email');
         }
 
-        $request->session()->regenerate();
-
-        return redirect('/admin/dashboard');
-    });
-
-    Route::get('/register', function () {
-        return view('auth.register');
-    })->name('admin.register');
-
-    Route::post('/register', function (Request $request) {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:6'],
-            'role' => ['nullable', 'in:admin,user'],
-        ]);
-
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'role' => $data['role'] ?? 'user',
-        ]);
-
-        Auth::login($user);
         $request->session()->regenerate();
 
         return redirect('/admin/dashboard');

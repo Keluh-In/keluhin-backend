@@ -163,8 +163,7 @@
         </form>
 
         <p class="text-center mt-4 mb-0 text-muted">
-            Belum punya akun?
-            <a class="auth-link" href="/admin/register">Register</a>
+            Akun baru dibuat oleh admin melalui halaman Users.
         </p>
     </section>
 </main>

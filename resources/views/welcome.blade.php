@@ -40,7 +40,7 @@
             </p>
 
             <div class="mt-6 flex gap-4">
-                <a href="/admin/register"
+                <a href="/admin/login"
                    class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">
                     Mulai Sekarang
                 </a>
