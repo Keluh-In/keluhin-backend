@@ -74,6 +74,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         ->name('admin.complaints.index');
     Route::post('/complaints', [ComplaintController::class, 'store'])
         ->name('admin.complaints.store');
+    Route::get('/complaints/{complaint}', [ComplaintController::class, 'show'])
+        ->name('admin.complaints.show');
     Route::put('/complaints/{complaint}', [ComplaintController::class, 'update'])
         ->name('admin.complaints.update');
     Route::delete('/complaints/{complaint}', [ComplaintController::class, 'destroy'])

@@ -30,6 +30,15 @@ class ComplaintController extends Controller
         return back()->with('success', 'Pengaduan berhasil ditambahkan.');
     }
 
+    public function show(Complaint $complaint)
+    {
+        $complaint->load(['user', 'category', 'response.admin']);
+        $categories = Category::orderBy('name')->get();
+        $users = User::orderBy('name')->get();
+
+        return view('admin.complaints.show', compact('complaint', 'categories', 'users'));
+    }
+
     public function update(Request $request, Complaint $complaint)
     {
         $data = $this->validatedData($request);
@@ -44,7 +53,9 @@ class ComplaintController extends Controller
     {
         $complaint->delete();
 
-        return back()->with('success', 'Pengaduan berhasil dihapus.');
+        return redirect()
+            ->route('admin.complaints.index')
+            ->with('success', 'Pengaduan berhasil dihapus.');
     }
 
     private function validatedData(Request $request): array

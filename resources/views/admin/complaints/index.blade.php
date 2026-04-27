@@ -85,6 +85,9 @@
                         <td>{{ optional($complaint->created_at)->format('d M Y') }}</td>
                         <td>
                             <div class="table-actions">
+                                <a class="btn btn-sm btn-light" href="{{ route('admin.complaints.show', $complaint) }}">
+                                    Detail
+                                </a>
                                 <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#editComplaintModal-{{ $complaint->id }}">
                                     Update
                                 </button>
