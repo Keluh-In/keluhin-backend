@@ -1,0 +1,1139 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Keluhin API",
+    "description": "Dokumentasi OpenAPI untuk endpoint aplikasi Keluhin.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/api",
+      "description": "Laravel API"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Registrasi, login, dan logout pengguna."
+    },
+    {
+      "name": "Profile",
+      "description": "Data profil pengguna yang sedang login."
+    },
+    {
+      "name": "Complaints",
+      "description": "Pengelolaan pengaduan milik pengguna."
+    },
+    {
+      "name": "Responses",
+      "description": "Tanggapan admin untuk pengaduan pengguna."
+    },
+    {
+      "name": "Categories",
+      "description": "Daftar kategori pengaduan."
+    }
+  ],
+  "paths": {
+    "/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Register user baru",
+        "operationId": "register",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              },
+              "example": {
+                "name": "Budi Santoso",
+                "email": "budi@example.com",
+                "password": "secret123",
+                "password_confirmation": "secret123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Register berhasil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login user",
+        "operationId": "login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              },
+              "example": {
+                "email": "budi@example.com",
+                "password": "secret123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login berhasil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginSuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Logout user",
+        "operationId": "logout",
+        "security": [
+          {
+            "sanctumBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logout berhasil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                },
+                "example": {
+                  "status": true,
+                  "message": "Logout berhasil",
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/profile": {
+      "get": {
+        "tags": ["Profile"],
+        "summary": "Ambil profil user login",
+        "operationId": "getProfile",
+        "security": [
+          {
+            "sanctumBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profil ditemukan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Profile"],
+        "summary": "Update profil user login",
+        "operationId": "updateProfile",
+        "security": [
+          {
+            "sanctumBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileRequest"
+              },
+              "example": {
+                "name": "Budi Santoso",
+                "email": "budi.baru@example.com"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/complaints": {
+      "get": {
+        "tags": ["Complaints"],
+        "summary": "Daftar pengaduan milik user login",
+        "operationId": "listComplaints",
+        "security": [
+          {
+            "sanctumBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar pengaduan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ComplaintWithCategory"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Complaints"],
+        "summary": "Buat pengaduan baru",
+        "operationId": "createComplaint",
+        "security": [
+          {
+            "sanctumBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/StoreComplaintRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pengaduan berhasil dibuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Complaint"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/complaints/{id}": {
+      "get": {
+        "tags": ["Complaints"],
+        "summary": "Detail pengaduan",
+        "operationId": "getComplaint",
+        "security": [
+          {
+            "sanctumBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ComplaintId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detail pengaduan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/ComplaintDetail"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Complaints"],
+        "summary": "Update pengaduan",
+        "description": "Pengaduan hanya bisa diubah saat status masih `menunggu`.",
+        "operationId": "updateComplaint",
+        "security": [
+          {
+            "sanctumBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ComplaintId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateComplaintRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Berhasil diupdate",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Complaint"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Complaints"],
+        "summary": "Hapus pengaduan",
+        "description": "Pengaduan hanya bisa dihapus saat status masih `menunggu`.",
+        "operationId": "deleteComplaint",
+        "security": [
+          {
+            "sanctumBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ComplaintId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Berhasil dihapus",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                },
+                "example": {
+                  "status": true,
+                  "message": "Berhasil dihapus",
+                  "data": null
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/complaints/{id}/responses": {
+      "get": {
+        "tags": ["Responses"],
+        "summary": "Daftar tanggapan untuk pengaduan",
+        "operationId": "listComplaintResponses",
+        "security": [
+          {
+            "sanctumBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ComplaintId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar tanggapan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Response"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/categories": {
+      "get": {
+        "tags": ["Categories"],
+        "summary": "Daftar kategori",
+        "operationId": "listCategories",
+        "security": [
+          {
+            "sanctumBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar kategori",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Category"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sanctumBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Sanctum token"
+      }
+    },
+    "parameters": {
+      "ComplaintId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "ID pengaduan.",
+        "schema": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1
+        }
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "Request gagal",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "status": false,
+              "message": "Tidak bisa diubah",
+              "data": null
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Token tidak valid atau belum login",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "status": false,
+              "message": "Unauthorized",
+              "data": null
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Akses ditolak",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "status": false,
+              "message": "Akun ini sedang diban.",
+              "data": null
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Data tidak ditemukan",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/NotFoundResponse"
+            },
+            "example": {
+              "status": false,
+              "message": "Data not found"
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "Validasi gagal",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ValidationErrorResponse"
+            },
+            "example": {
+              "message": "The given data was invalid.",
+              "errors": {
+                "email": [
+                  "Email wajib diisi"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Success"
+          },
+          "data": {
+            "nullable": true
+          }
+        },
+        "required": ["status", "message", "data"]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "example": "Error"
+          },
+          "data": {
+            "nullable": true
+          }
+        },
+        "required": ["status", "message"]
+      },
+      "NotFoundResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "example": "Data not found"
+          }
+        },
+        "required": ["status", "message"]
+      },
+      "ValidationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "The given data was invalid."
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": ["message", "errors"]
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "minLength": 6
+          },
+          "password_confirmation": {
+            "type": "string",
+            "format": "password",
+            "minLength": 6
+          }
+        },
+        "required": ["name", "email", "password", "password_confirmation"]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "minLength": 6
+          }
+        },
+        "required": ["email", "password"]
+      },
+      "UpdateProfileRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        }
+      },
+      "StoreComplaintRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 150
+          },
+          "category_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "description": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string",
+            "maxLength": 255,
+            "nullable": true
+          },
+          "image": {
+            "type": "string",
+            "format": "binary",
+            "nullable": true,
+            "description": "File gambar jpg, jpeg, atau png. Maksimal 2MB."
+          },
+          "is_anonymous": {
+            "type": "boolean",
+            "nullable": true
+          }
+        },
+        "required": ["title", "category_id", "description"]
+      },
+      "UpdateComplaintRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 150,
+            "nullable": true
+          },
+          "category_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "maxLength": 255,
+            "nullable": true
+          },
+          "image": {
+            "type": "string",
+            "format": "binary",
+            "nullable": true,
+            "description": "File gambar jpg, jpeg, atau png. Maksimal 2MB."
+          },
+          "is_anonymous": {
+            "type": "boolean",
+            "nullable": true
+          }
+        }
+      },
+      "LoginSuccessResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SuccessResponse"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "user": {
+                    "$ref": "#/components/schemas/User"
+                  },
+                  "token": {
+                    "type": "string",
+                    "example": "1|plain-text-token"
+                  }
+                },
+                "required": ["user", "token"]
+              }
+            }
+          }
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Budi Santoso"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "budi@example.com"
+          },
+          "email_verified_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "role": {
+            "type": "string",
+            "enum": ["super_admin", "admin", "user"],
+            "example": "user"
+          },
+          "banned_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deleted_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Jalan Rusak"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deleted_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "Complaint": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "user_id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "category_id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 2
+          },
+          "title": {
+            "type": "string",
+            "example": "Lampu jalan mati"
+          },
+          "description": {
+            "type": "string",
+            "example": "Lampu jalan di depan kantor kelurahan mati sejak minggu lalu."
+          },
+          "location": {
+            "type": "string",
+            "nullable": true,
+            "example": "Jl. Merdeka No. 10"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["menunggu", "diproses", "selesai", "ditolak"],
+            "example": "menunggu"
+          },
+          "image": {
+            "type": "string",
+            "nullable": true,
+            "example": "uploads/complaints/example.jpg"
+          },
+          "is_anonymous": {
+            "type": "boolean",
+            "example": false
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deleted_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "ComplaintWithCategory": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Complaint"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "category": {
+                "$ref": "#/components/schemas/Category"
+              }
+            }
+          }
+        ]
+      },
+      "ComplaintDetail": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComplaintWithCategory"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "response": {
+                "nullable": true,
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Response"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "Response": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "complaint_id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "admin_id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 2
+          },
+          "message": {
+            "type": "string",
+            "example": "Pengaduan sedang ditindaklanjuti."
+          },
+          "admin": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdminSummary"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deleted_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "AdminSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 2
+          },
+          "name": {
+            "type": "string",
+            "example": "Admin Keluhin"
+          }
+        }
+      }
+    }
+  }
+}

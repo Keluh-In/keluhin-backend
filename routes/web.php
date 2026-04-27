@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\ComplaintResponseController;
 use App\Http\Controllers\Admin\ComplaintAttachmentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 
 Route::get('/', function () {
     return response()->json([
@@ -16,6 +17,20 @@ Route::get('/', function () {
         'status' => 'running',
     ]);
 });
+
+Route::get('/api/documentation', function () {
+    return view('api-docs');
+})->name('api.documentation');
+
+Route::get('/api/documentation/openapi.json', function () {
+    $path = base_path('docs/openapi.json');
+
+    abort_unless(File::exists($path), 404);
+
+    return response()->file($path, [
+        'Content-Type' => 'application/json',
+    ]);
+})->name('api.documentation.openapi');
 
 Route::redirect('/login', '/admin/login');
 Route::redirect('/register', '/admin/login');
