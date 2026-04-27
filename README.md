@@ -1,187 +1,76 @@
 # Keluhin Backend
 
-Backend Laravel untuk aplikasi Keluhin. Project ini menyediakan API auth, kategori, pengaduan, dan halaman admin dashboard sederhana.
+Backend Laravel untuk aplikasi Keluhin. Project ini menyediakan REST API untuk auth, profil, kategori, pengaduan, tanggapan admin, serta dashboard admin berbasis Blade.
 
 ## Requirement
-
-Pastikan sudah terinstall:
 
 - PHP 8.3 atau lebih baru
 - Composer
 - Node.js dan npm
-- SQLite
+- SQLite untuk development lokal
 
-Environment yang dipakai:
+Project ini nyaman dijalankan dengan Laravel Herd di macOS atau Laragon di Windows.
 
-- macOS: Laravel Herd
-- Windows: Laragon
+## Setup
 
-## Catatan Environment
-
-### macOS + Laravel Herd
-
-Laravel Herd biasanya sudah menyediakan PHP dan Composer.
-
-Jika `php` atau `composer` belum terbaca di terminal, jalankan:
-
-```bash
-source ~/.zshrc
-```
-
-Lalu cek:
-
-```bash
-php -v
-composer --version
-```
-
-### Windows + Laragon
-
-Jalankan command dari terminal Laragon, PowerShell, Command Prompt, Git Bash, atau terminal bawaan editor.
-
-Pastikan PHP dan Composer dari Laragon sudah terbaca:
-
-```bash
-php -v
-composer --version
-```
-
-Jika belum terbaca, buka Laragon lalu cek menu:
-
-```text
-Menu > Tools > Path > Add Laragon to Path
-```
-
-Setelah itu tutup terminal lama, buka terminal baru, lalu cek ulang `php -v` dan `composer --version`.
-
-## Setup Dari Awal
-
-Clone repository:
+Clone repository dan masuk ke folder project:
 
 ```bash
 git clone <url-repository>
 cd keluhin-backend
 ```
 
-Install dependency PHP:
+Install dependency:
 
 ```bash
 composer install
-```
-
-Install dependency frontend:
-
-```bash
 npm install
 ```
 
-Copy file environment.
-
-macOS / Linux / Git Bash:
+Siapkan file environment:
 
 ```bash
 cp .env.example .env
-```
-
-Windows PowerShell:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-Windows Command Prompt:
-
-```bat
-copy .env.example .env
-```
-
-Generate application key:
-
-```bash
 php artisan key:generate
 ```
 
-## Konfigurasi Database
+Untuk Windows PowerShell, gunakan:
 
-Project ini memakai SQLite untuk development lokal.
+```powershell
+Copy-Item .env.example .env
+php artisan key:generate
+```
 
-Disarankan pakai file SQLite di folder `database`.
+## Database
 
-macOS / Linux / Git Bash:
+Project ini memakai SQLite untuk development lokal. Buat file database:
 
 ```bash
 touch database/database.sqlite
 ```
 
-Windows PowerShell:
+Untuk Windows PowerShell:
 
 ```powershell
 New-Item -ItemType File database/database.sqlite
 ```
 
-Windows Command Prompt:
-
-```bat
-type nul > database\database.sqlite
-```
-
-Lalu ubah `.env` menjadi salah satu opsi berikut.
-
-Opsi paling universal:
+Atur konfigurasi database di `.env`:
 
 ```env
 DB_CONNECTION=sqlite
 DB_DATABASE=database/database.sqlite
 ```
 
-Jika SQLite tidak terbaca dengan path relatif, gunakan absolute path sesuai OS.
+Jika path relatif tidak terbaca, gunakan absolute path ke file `database/database.sqlite`.
 
-macOS / Linux:
-
-```env
-DB_CONNECTION=sqlite
-DB_DATABASE=/path/ke/project/keluhin-backend/database/database.sqlite
-```
-
-Windows:
-
-```env
-DB_CONNECTION=sqlite
-DB_DATABASE=C:\path\ke\project\keluhin-backend\database\database.sqlite
-```
-
-Contoh jika project ada di Laragon:
-
-```env
-DB_CONNECTION=sqlite
-DB_DATABASE=C:\laragon\www\keluhin-backend\database\database.sqlite
-```
-
-Bagian berikut tidak dipakai oleh SQLite, jadi boleh dibiarkan atau dikomentari:
-
-```env
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_USERNAME=root
-DB_PASSWORD=
-```
-
-Catatan: jika `.env` memakai `DB_DATABASE=keluhin`, Laravel akan membuat file SQLite bernama `keluhin` di root project.
-
-## Migrasi dan Seeder
-
-Untuk membuat ulang database dari nol dan mengisi data contoh:
+Jalankan migration dan seeder:
 
 ```bash
 php artisan migrate:fresh --seed
 ```
 
-Seeder akan membuat:
-
-- akun admin
-- user dummy
-- kategori pengaduan
-- data pengaduan dummy
+Seeder membuat data awal seperti admin, user contoh, kategori, dan pengaduan dummy.
 
 Contoh akun admin:
 
@@ -192,44 +81,63 @@ Password: password123
 
 ## Menjalankan Project
 
-Jalankan server Laravel:
+Jalankan Laravel server:
 
 ```bash
 php artisan serve
 ```
 
-Buka:
+Buka aplikasi:
 
 ```text
 http://127.0.0.1:8000
 ```
 
-Admin login:
+Admin panel:
 
 ```text
 http://127.0.0.1:8000/admin/login
-```
-
-Admin dashboard:
-
-```text
 http://127.0.0.1:8000/admin/dashboard
 ```
 
-Jika belum login, dashboard akan redirect ke halaman login admin.
-
-## Menjalankan Asset Frontend
-
-Untuk development Vite:
+Untuk asset frontend:
 
 ```bash
 npm run dev
 ```
 
-Untuk build asset:
+Build asset production:
 
 ```bash
 npm run build
+```
+
+## Dokumentasi API
+
+Dokumentasi API tersedia dalam format Swagger/OpenAPI.
+
+Swagger UI:
+
+```text
+http://127.0.0.1:8000/api/documentation
+```
+
+OpenAPI JSON:
+
+```text
+http://127.0.0.1:8000/api/documentation/openapi.json
+```
+
+File spesifikasi berada di:
+
+```text
+docs/openapi.json
+```
+
+Endpoint yang dilindungi memakai Laravel Sanctum bearer token. Ambil token dari endpoint login, lalu gunakan header:
+
+```http
+Authorization: Bearer <token>
 ```
 
 ## Endpoint API Utama
@@ -257,6 +165,7 @@ POST   /api/complaints
 GET    /api/complaints/{id}
 PUT    /api/complaints/{id}
 DELETE /api/complaints/{id}
+GET    /api/complaints/{id}/responses
 ```
 
 Categories:
@@ -265,38 +174,13 @@ Categories:
 GET /api/categories
 ```
 
-Endpoint yang berada di dalam middleware `auth:sanctum` membutuhkan token dari `/api/login`.
+## Testing
 
-## Membuka Database di TablePlus
+Jalankan test:
 
-Jika memakai konfigurasi yang disarankan, pilih file:
-
-```text
-database/database.sqlite
+```bash
+php artisan test
 ```
-
-Jika masih memakai konfigurasi lama `DB_DATABASE=keluhin`, pilih file bernama `keluhin` di root project.
-
-```text
-keluhin
-```
-
-Di TablePlus:
-
-1. Buat connection baru.
-2. Pilih SQLite.
-3. Pilih file database.
-4. Klik Connect.
-
-Tabel utama:
-
-- users
-- categories
-- complaints
-- responses
-- sessions
-- jobs
-- personal_access_tokens
 
 ## Command Berguna
 
@@ -318,7 +202,7 @@ Clear config cache:
 php artisan config:clear
 ```
 
-Reset database dan isi ulang data contoh:
+Reset database dan isi ulang data:
 
 ```bash
 php artisan migrate:fresh --seed
@@ -326,29 +210,35 @@ php artisan migrate:fresh --seed
 
 ## Troubleshooting
 
-Jika muncul error `vendor/autoload.php not found`, jalankan:
+Jika muncul error `vendor/autoload.php not found`:
 
 ```bash
 composer install
 ```
 
-Jika muncul error `No application encryption key has been specified`, jalankan:
+Jika muncul error `No application encryption key has been specified`:
 
 ```bash
 php artisan key:generate
 php artisan config:clear
 ```
 
-Jika muncul error `no such table: sessions`, pastikan migration sudah dijalankan:
+Jika muncul error `no such table: sessions` atau tabel lain belum ada:
 
 ```bash
 php artisan migrate
 ```
 
-Jika `php` atau `composer` tidak ditemukan tetapi sudah install lewat Laravel Herd:
+Jika `php` atau `composer` tidak ditemukan di macOS dengan Laravel Herd:
 
 ```bash
 source ~/.zshrc
 php -v
 composer --version
+```
+
+Jika memakai Laragon di Windows dan `php` belum terbaca, aktifkan path dari menu:
+
+```text
+Menu > Tools > Path > Add Laragon to Path
 ```
