@@ -1,20 +1,20 @@
 @extends('layouts.admin')
 
-@section('title', 'Pengguna')
-@section('subtitle', 'Kelola akun dan lihat aktivitas pengaduan pengguna.')
+@section('title', 'Pengguna Aplikasi')
+@section('subtitle', 'Kelola akun end-user mobile app dan lihat aktivitas pengaduan.')
 
 @section('content')
 @php
     $totalUsers = $users->count();
-    $adminUsers = $users->where('role', 'admin')->count();
-    $superAdminUsers = $users->where('role', 'super_admin')->count();
     $bannedUsers = $users->whereNotNull('banned_at')->count();
+    $activeUsers = $totalUsers - $bannedUsers;
+    $totalComplaints = $users->sum('complaints_count');
 @endphp
 
 <div class="metric-strip">
     <div class="card mini-metric">
         <div>
-            <div class="mini-metric-label">Total pengguna</div>
+            <div class="mini-metric-label">Total pengguna aplikasi</div>
             <div class="mini-metric-value">{{ number_format($totalUsers) }}</div>
         </div>
         <span class="mini-metric-icon"><i class="bi bi-people"></i></span>
@@ -22,18 +22,18 @@
 
     <div class="card mini-metric">
         <div>
-            <div class="mini-metric-label">Admin</div>
-            <div class="mini-metric-value">{{ number_format($adminUsers) }}</div>
+            <div class="mini-metric-label">Aktif</div>
+            <div class="mini-metric-value">{{ number_format($activeUsers) }}</div>
         </div>
-        <span class="mini-metric-icon"><i class="bi bi-shield-check"></i></span>
+        <span class="mini-metric-icon"><i class="bi bi-check-circle"></i></span>
     </div>
 
     <div class="card mini-metric">
         <div>
-            <div class="mini-metric-label">Super Admin</div>
-            <div class="mini-metric-value">{{ number_format($superAdminUsers) }}</div>
+            <div class="mini-metric-label">Total pengaduan</div>
+            <div class="mini-metric-value">{{ number_format($totalComplaints) }}</div>
         </div>
-        <span class="mini-metric-icon"><i class="bi bi-shield-lock"></i></span>
+        <span class="mini-metric-icon"><i class="bi bi-chat-dots"></i></span>
     </div>
 
     <div class="card mini-metric">
@@ -49,7 +49,7 @@
     <div class="section-header">
         <div>
             <h2 class="section-title">Daftar Pengguna</h2>
-            <div class="section-subtitle">Akun terdaftar dan jumlah pengaduan yang dibuat.</div>
+            <div class="section-subtitle">Akun end-user mobile app dan jumlah pengaduan yang dibuat.</div>
         </div>
 
         <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#createUserModal">
@@ -65,7 +65,6 @@
                     <th width="90">ID</th>
                     <th>Nama</th>
                     <th>Email</th>
-                    <th>Role</th>
                     <th>Status</th>
                     <th>Pengaduan</th>
                     <th class="text-end">Aksi</th>
@@ -73,23 +72,10 @@
             </thead>
             <tbody>
                 @forelse($users as $user)
-                    @php
-                        $canManageUser = $user->role === 'user' || auth()->user()->isSuperAdmin();
-                        $roleBadge = match ($user->role) {
-                            'super_admin' => 'badge-diproses',
-                            'admin' => 'badge-ditolak',
-                            default => 'badge-selesai',
-                        };
-                    @endphp
                     <tr>
                         <td class="text-muted">{{ $user->id }}</td>
                         <td class="fw-semibold">{{ $user->name }}</td>
                         <td>{{ $user->email }}</td>
-                        <td>
-                            <span class="badge-soft {{ $roleBadge }}">
-                                {{ $user->roleLabel() }}
-                            </span>
-                        </td>
                         <td>
                             @if($user->isBanned())
                                 <span class="badge-soft badge-ditolak">Diban</span>
@@ -100,33 +86,33 @@
                         <td>{{ number_format($user->complaints_count ?? 0) }}</td>
                         <td>
                             <div class="table-actions">
-                                <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#editUserModal-{{ $user->id }}" @disabled(! $canManageUser)>
+                                <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#editUserModal-{{ $user->id }}">
                                     Update
                                 </button>
 
                                 @if($user->isBanned())
                                     <form method="POST" action="{{ route('admin.users.unban', $user) }}">
                                         @csrf
-                                        <button class="btn btn-sm btn-primary" type="submit" @disabled(! $canManageUser)>Unban</button>
+                                        <button class="btn btn-sm btn-primary" type="submit">Unban</button>
                                     </form>
                                 @else
                                     <form method="POST" action="{{ route('admin.users.ban', $user) }}">
                                         @csrf
-                                        <button class="btn btn-sm btn-soft-danger" type="submit" @disabled(auth()->id() === $user->id || ! $canManageUser)>Ban</button>
+                                        <button class="btn btn-sm btn-soft-danger" type="submit" @disabled(auth()->id() === $user->id)>Ban</button>
                                     </form>
                                 @endif
 
                                 <form method="POST" action="{{ route('admin.users.destroy', $user) }}">
                                     @csrf
                                     @method('DELETE')
-                                    <button class="btn btn-sm btn-soft-danger" type="submit" @disabled(auth()->id() === $user->id || ! $canManageUser)>Hapus</button>
+                                    <button class="btn btn-sm btn-soft-danger" type="submit" @disabled(auth()->id() === $user->id)>Hapus</button>
                                 </form>
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="empty-state">Belum ada pengguna.</td>
+                        <td colspan="6" class="empty-state">Belum ada pengguna aplikasi.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -157,15 +143,6 @@
                     <label class="form-label" for="create_user_password">Password</label>
                     <input id="create_user_password" type="password" name="password" class="form-control" required>
                 </div>
-
-                <div>
-                    <label class="form-label" for="create_user_role">Role</label>
-                    <select id="create_user_role" name="role" class="form-select" required>
-                        @foreach($roleOptions as $roleValue => $roleLabel)
-                            <option value="{{ $roleValue }}" @selected(old('role', 'user') === $roleValue)>{{ $roleLabel }}</option>
-                        @endforeach
-                    </select>
-                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-light" type="button" data-bs-dismiss="modal">Batal</button>
@@ -176,8 +153,6 @@
 </div>
 
 @foreach($users as $user)
-    @continue($user->role !== 'user' && ! auth()->user()->isSuperAdmin())
-
     <div class="modal fade" id="editUserModal-{{ $user->id }}" tabindex="-1" aria-labelledby="editUserModalLabel-{{ $user->id }}" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <form class="modal-content" method="POST" action="{{ route('admin.users.update', $user) }}">
@@ -201,15 +176,6 @@
                     <div class="mb-3">
                         <label class="form-label" for="edit_user_password_{{ $user->id }}">Password Baru</label>
                         <input id="edit_user_password_{{ $user->id }}" type="password" name="password" class="form-control" placeholder="Kosongkan jika tidak diubah">
-                    </div>
-
-                    <div>
-                        <label class="form-label" for="edit_user_role_{{ $user->id }}">Role</label>
-                        <select id="edit_user_role_{{ $user->id }}" name="role" class="form-select" required>
-                            @foreach($roleOptions as $roleValue => $roleLabel)
-                                <option value="{{ $roleValue }}" @selected($user->role === $roleValue)>{{ $roleLabel }}</option>
-                            @endforeach
-                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">

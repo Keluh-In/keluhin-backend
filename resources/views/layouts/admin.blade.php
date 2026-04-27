@@ -492,8 +492,14 @@
             </a>
             <a class="sidebar-link {{ request()->is('admin/users*') ? 'is-active' : '' }}" href="/admin/users">
                 <i class="bi bi-people"></i>
-                Pengguna
+                Pengguna Aplikasi
             </a>
+            @if(auth()->user()?->isSuperAdmin())
+                <a class="sidebar-link {{ request()->is('admin/admin-users*') ? 'is-active' : '' }}" href="{{ route('admin.admin-users.index') }}">
+                    <i class="bi bi-person-gear"></i>
+                    Manajemen Admin
+                </a>
+            @endif
             @if(auth()->user()?->isSuperAdmin())
                 <a class="sidebar-link {{ request()->is('admin/audit-logs*') ? 'is-active' : '' }}" href="{{ route('admin.audit-logs.index') }}">
                     <i class="bi bi-journal-text"></i>

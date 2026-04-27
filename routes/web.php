@@ -105,14 +105,29 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     Route::get('/users', [UserController::class, 'index'])
         ->name('admin.users.index');
-    Route::post('/users', [UserController::class, 'store'])
+    Route::post('/users', [UserController::class, 'storeAppUser'])
         ->name('admin.users.store');
-    Route::put('/users/{user}', [UserController::class, 'update'])
+    Route::put('/users/{user}', [UserController::class, 'updateAppUser'])
         ->name('admin.users.update');
-    Route::post('/users/{user}/ban', [UserController::class, 'ban'])
+    Route::post('/users/{user}/ban', [UserController::class, 'banAppUser'])
         ->name('admin.users.ban');
-    Route::post('/users/{user}/unban', [UserController::class, 'unban'])
+    Route::post('/users/{user}/unban', [UserController::class, 'unbanAppUser'])
         ->name('admin.users.unban');
-    Route::delete('/users/{user}', [UserController::class, 'destroy'])
+    Route::delete('/users/{user}', [UserController::class, 'destroyAppUser'])
         ->name('admin.users.destroy');
+
+    Route::middleware('super_admin')->group(function () {
+        Route::get('/admin-users', [UserController::class, 'adminIndex'])
+            ->name('admin.admin-users.index');
+        Route::post('/admin-users', [UserController::class, 'storeAdminUser'])
+            ->name('admin.admin-users.store');
+        Route::put('/admin-users/{user}', [UserController::class, 'updateAdminUser'])
+            ->name('admin.admin-users.update');
+        Route::post('/admin-users/{user}/ban', [UserController::class, 'banAdminUser'])
+            ->name('admin.admin-users.ban');
+        Route::post('/admin-users/{user}/unban', [UserController::class, 'unbanAdminUser'])
+            ->name('admin.admin-users.unban');
+        Route::delete('/admin-users/{user}', [UserController::class, 'destroyAdminUser'])
+            ->name('admin.admin-users.destroy');
+    });
 });
