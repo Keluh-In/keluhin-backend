@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Response extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'complaint_id',
+        'admin_id',
+        'message'
+    ];
+
+    /**
+     * RELASI: response milik complaint
+     */
+    public function complaint()
+    {
+        return $this->belongsTo(Complaint::class);
+    }
+
+    /**
+     * RELASI: response dibuat admin (user)
+     */
+    public function admin()
+    {
+        return $this->belongsTo(User::class, 'admin_id');
+    }
+}
