@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Complaint;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\ApiFormRequest;
 
-class StoreComplaintRequest extends FormRequest
+class StoreComplaintRequest extends ApiFormRequest
 {
     /**
      * Semua user login boleh create complaint

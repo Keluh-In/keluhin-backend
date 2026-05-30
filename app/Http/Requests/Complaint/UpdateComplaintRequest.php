@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Complaint;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\ApiFormRequest;
 
-class UpdateComplaintRequest extends FormRequest
+class UpdateComplaintRequest extends ApiFormRequest
 {
     /**
      * hanya pemilik complaint boleh update
