@@ -52,17 +52,17 @@ class Complaint extends Model
      * Hubungan Relasi tambahan yang dimuat di fungsi show() (jika ada).
      */
     public function responses()
-    {
+{
         return $this->hasMany(ComplaintResponse::class); // Sesuaikan dengan nama model Response Anda jika ada
-    }
+}
 
-    public function response()
-    {
+public function response()
+{
         return $this->hasOne(ComplaintResponse::class)->latestOfMany(); // Contoh untuk mengambil respon terakhir
-    }
+}
 
-    public function attachments()
-    {
+public function attachments()
+{
         return $this->hasMany(ComplaintAttachment::class); // Sesuaikan jika ada relasi lampiran berkas
-    }
+}
 }
