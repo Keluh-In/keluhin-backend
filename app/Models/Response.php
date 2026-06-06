@@ -16,15 +16,15 @@ class Response extends Model
     ];
 
     /**
-     * RELASI: response milik complaint
+     * RELASI: Response milik Complaint
      */
     public function complaint()
     {
-        return $this->belongsTo(Complaint::class);
+        return $this->belongsTo(Complaint::class, 'complaint_id');
     }
 
     /**
-     * RELASI: response dibuat admin (user)
+     * RELASI: Response dibuat admin (User)
      */
     public function admin()
     {
