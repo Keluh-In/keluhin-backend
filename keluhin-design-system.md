@@ -1,9 +1,14 @@
-# Keluh In — Design System
+# Keluh In — Design System (Backend / Admin Dashboard)
 
-> Sistem desain terpadu untuk aplikasi pengaduan mahasiswa.
-> Dipakai bersama oleh aplikasi **mobile (Android)** dan **dashboard web admin** agar tampilan konsisten dan pengembangan lebih cepat.
+> Sistem desain untuk **dashboard web admin** aplikasi pengaduan mahasiswa.
+> Repo ini adalah **backend Laravel** yang menyajikan REST API (dikonsumsi aplikasi mobile, repo terpisah) **dan** dashboard admin berbasis Blade.
+> Dokumen ini mengikat nilai-nilai visual yang benar-benar dipakai di dashboard admin, bukan target aspiratif.
 
-**Versi:** 1.0 · **Font:** Poppins · **Warna utama:** `#2B63F0` · **Grid:** 4px
+**Stack web:** Laravel 13 · Blade · **Bootstrap 5.3.3** (CDN) · Bootstrap Icons 1.11.3
+**Font:** Inter (fallback `system-ui`) · **Warna utama:** `#2563eb` · **Radius dasar:** `8px`
+**Sumber tunggal token:** blok `<style>` + `:root` di `resources/views/layouts/admin.blade.php`
+
+> **Catatan stack.** Tailwind v4 (`@tailwindcss/vite`) terpasang dan dikompilasi via Vite (`resources/css/app.css`), tetapi layout aktif (`layouts/admin.blade.php`, `layouts/app.blade.php`) memakai **Bootstrap via CDN**, bukan Tailwind. Token di bawah berasal dari CSS variables Bootstrap-layer, bukan dari config Tailwind.
 
 ---
 
@@ -18,340 +23,263 @@
 7. [Pola Layar](#7-pola-layar)
 8. [Aksesibilitas](#8-aksesibilitas)
 9. [Design Tokens](#9-design-tokens)
+10. [Kontrak API untuk Mobile](#10-kontrak-api-untuk-mobile)
 
 ---
 
 ## 1. Prinsip
 
-- **Tenang & terpercaya.** Aplikasi pengaduan harus terasa aman, bukan agresif. Biru sebagai warna dominan, merah hanya untuk aksi destruktif/penolakan.
-- **Satu sistem, dua platform.** Spesifikasi sama untuk mobile dan web; yang berbeda hanya ukuran sentuh (mobile minimal 44px) dan tata letak.
-- **Jelas di atas dekoratif.** Hierarki dibangun lewat tipografi dan spacing, bukan banyak warna atau bayangan tebal.
-- **Konsisten lewat token.** Semua nilai (warna, ukuran, radius) berasal dari token bernama, bukan angka acak.
+- **Tenang & terpercaya.** Biru sebagai warna dominan; merah hanya untuk aksi destruktif/penolakan.
+- **Permukaan terang.** Dashboard memakai background `#f7f9fb` dengan kartu putih dan sidebar **terang** — bukan sidebar gelap.
+- **Jelas di atas dekoratif.** Hierarki lewat tipografi dan spacing, bukan banyak warna.
+- **Konsisten lewat variabel.** Warna, radius, dan shadow berasal dari CSS variables `--admin-*`, bukan angka acak.
 
 ---
 
 ## 2. Warna
 
-### Primary — Blue
+### Brand & Permukaan (CSS `:root` aktual)
 
-| Token | Hex | Penggunaan |
+| Variabel | Hex | Penggunaan |
 |---|---|---|
-| `blue-50` | `#EEF3FE` | Background lembut, highlight |
-| `blue-100` | `#D8E3FD` | Background hover halus |
-| `blue-200` | `#B3C7FB` | Border aksen |
-| `blue-300` | `#84A3F8` | — |
-| `blue-400` | `#527CF4` | — |
-| **`blue-500`** | **`#2B63F0`** | **Primary** — tombol, link, ikon aktif |
-| `blue-600` | `#1E4FD4` | Hover / pressed |
-| `blue-700` | `#1A41AB` | Teks di atas background biru muda |
-| `blue-800` | `#173681` | — |
-| `blue-900` | `#142B5E` | — |
+| `--admin-primary` | `#2563eb` | Primary — tombol, link aktif, ikon |
+| `--admin-primary-soft` | `#eff6ff` | Background hover sidebar, soft badge, icon chip |
+| `--admin-bg` | `#f7f9fb` | Background halaman |
+| `--admin-surface` | `#ffffff` | Permukaan / kartu / sidebar |
+| `--admin-text` | `#111827` | Teks utama |
+| `--admin-muted` | `#6b7280` | Teks sekunder, caption, label metrik |
+| `--admin-line` | `#edf1f5` | Border, divider, garis tabel |
 
-### Neutral — Ink
+### Warna pendukung (literal di stylesheet)
 
-| Token | Hex | Penggunaan |
+| Hex | Dipakai untuk |
+|---|---|
+| `#4b5563` | Teks link sidebar (default) |
+| `#94a3b8` | Ikon sidebar nonaktif, empty-state |
+| `#374151` | Teks tabel, label form, user-pill |
+| `#dbeafe` | Background avatar-dot |
+| `#bfdbfe` | Border input saat focus |
+
+### Semantic — Status (soft badge)
+
+Tiap status: background lembut + teks gelap. Diambil dari class `.badge-*`.
+
+| Status | Background | Teks |
 |---|---|---|
-| `ink-0` | `#FFFFFF` | Permukaan / kartu |
-| `ink-50` | `#F6F8FB` | Background halaman |
-| `ink-100` | `#EDF1F6` | Background sekunder, divider |
-| `ink-200` | `#DCE3EC` | Border default |
-| `ink-300` | `#C2CCD9` | Border kuat / outline input |
-| `ink-400` | `#9AA7B8` | Teks subtle, placeholder |
-| `ink-500` | `#708096` | Caption |
-| `ink-600` | `#4E5C70` | Teks sekunder |
-| `ink-700` | `#344256` | — |
-| `ink-800` | `#20293B` | — |
-| `ink-900` | `#18233D` | Teks utama |
-| `ink-950` | `#0E1626` | Sidebar gelap, dark mode |
-
-### Semantic — Status
-
-Setiap status punya tiga nilai: warna inti, background lembut, dan teks gelap (untuk dipakai di atas background lembut).
-
-| Status | Inti | Background | Teks |
-|---|---|---|---|
-| Info / **Baru** | `#2B63F0` | `#EEF3FE` | `#1A41AB` |
-| Warning / **Diproses** | `#F59E0B` | `#FEF3E2` | `#B45309` |
-| Success / **Selesai** | `#16A34A` | `#E7F6EC` | `#0F7A37` |
-| Danger / **Ditolak** | `#E23D3D` | `#FCEAEA` | `#B42318` |
+| **Menunggu** | `#fff7ed` | `#c2410c` |
+| **Diproses** | `#eef6ff` | `#1d4ed8` |
+| **Selesai** | `#ecfdf5` | `#047857` |
+| **Ditolak** | `#fef2f2` | `#b91c1c` |
 
 ---
 
 ## 3. Tipografi
 
-Satu typeface — **Poppins** — untuk mobile & web. Ukuran `px` (web) setara `sp` (Android).
+Font stack: `Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`.
+Inter **dideklarasikan** di `font-family` tetapi belum dimuat via `<link>` — saat ini efektif jatuh ke `system-ui`. Untuk benar memakai Inter, tambahkan link font di `<head>`.
 
-| Peran | Ukuran / Line-height | Weight | Catatan |
+Ukuran memakai `rem` (relatif `16px`). Nilai aktual dari stylesheet admin:
+
+| Peran | Ukuran | Weight | Sumber |
 |---|---|---|---|
-| Display | 40 / 48 | 600 | Judul halaman utama, onboarding |
-| Heading 1 | 32 / 40 | 600 | Judul layar |
-| Heading 2 | 24 / 32 | 600 | Judul section |
-| Heading 3 | 20 / 28 | 600 | Judul kartu |
-| Body Large | 18 / 28 | 400 | Intro, paragraf penting |
-| Body | 16 / 26 | 400 | Teks isi standar |
-| Body Small | 14 / 22 | 400 | Deskripsi, metadata |
-| Caption | 12 / 18 | 500 | Label, timestamp |
-| Button | 16 / 24 | 600 | Teks tombol |
+| Page title | `clamp(1.35rem, 1vw + 1rem, 1.9rem)` | 700 | `.page-title` |
+| Section title | `1.02rem` | 700 | `.section-title` |
+| Modal title | `1.08rem` | 700 | `.modal-title` |
+| Metric value | `1.65rem` | 700 | `.mini-metric-value` |
+| Brand title | `1rem` | 700 | `.brand-title` |
+| Body / link sidebar | `0.94rem` | 500 | `.sidebar-link` |
+| Section subtitle | `0.88rem` | — | `.section-subtitle` |
+| Metric label | `0.86rem` | 600 | `.mini-metric-label` |
+| Form label | `0.84rem` | 600 | `.form-label` |
+| Brand subtitle / caption | `0.78rem` | — | `.brand-subtitle` |
+| Badge | `0.76rem` | 600 | `.badge-soft` |
 
-**Weight yang dipakai:** Regular (400), Medium (500), SemiBold (600). Hindari Bold (700) kecuali untuk wordmark logo.
+**Weight dipakai:** 500, 600, 700. Heading/title memakai **700** (berbeda dari spec lama yang 600).
 
 ---
 
 ## 4. Spacing, Radius & Elevation
 
-### Spacing (base 4px)
+### Spacing
 
-| Token | Nilai |
+Tidak ada skala token bernama; jarak ditulis langsung (`px`/`rem`). Nilai yang sering muncul:
+
+| Konteks | Nilai |
 |---|---|
-| `space-1` | 4px |
-| `space-2` | 8px |
-| `space-3` | 12px |
-| `space-4` | 16px |
-| `space-5` | 20px |
-| `space-6` | 24px |
-| `space-8` | 32px |
-| `space-10` | 40px |
-| `space-12` | 48px |
-| `space-16` | 64px |
-
-Padding kartu standar `space-5` (20px). Jarak antar elemen list `space-3` (12px). Margin antar section `space-12`–`space-16`.
+| Padding `.main` | `28px` |
+| Padding sidebar | `28px 20px` |
+| Padding `.section-header` | `22px 24px` |
+| Padding `.modal-body` | `24px` |
+| Gap grid metrik / form | `16px` / `14px` |
+| Padding link sidebar | `11px 12px` |
 
 ### Radius
 
-| Token | Nilai | Untuk |
-|---|---|---|
-| `radius-sm` | 8px | Chip kecil, badge persegi |
-| `radius-md` | 12px | Tombol, input |
-| `radius-lg` | 16px | Kartu |
-| `radius-xl` | 20px | Sheet, modal |
-| `radius-2xl` | 28px | Container besar / frame |
-| `radius-full` | 999px | Pill, avatar, badge |
+| Token / nilai | Untuk |
+|---|---|
+| `--admin-radius` = **`8px`** | Kartu, tombol, input, modal, badge persegi, icon chip |
+| `999px` | Pill: `.badge-soft`, `.user-pill` |
+| `50%` | `.avatar-dot` |
+
+> Spec lama memakai skala radius 8/12/16/20/28. Implementasi nyata memakai **satu radius `8px`** untuk hampir semua permukaan.
 
 ### Elevation
 
-| Token | Shadow | Untuk |
+| Token / nilai | Shadow | Untuk |
 |---|---|---|
-| `shadow-1` | `0 1px 2px rgba(16,22,38,.06), 0 1px 3px rgba(16,22,38,.08)` | Kartu, list item |
-| `shadow-2` | `0 4px 14px rgba(16,22,38,.08)` | Dropdown, popover |
-| `shadow-3` | `0 14px 32px rgba(16,22,38,.12)` | Modal, sheet |
+| `--admin-shadow` | `0 16px 40px rgba(15,23,42,.06)` | Kartu, user-pill, alert |
+| (btn-primary) | `0 10px 24px rgba(37,99,235,.18)` | Tombol primary |
+| (modal) | `0 28px 80px rgba(15,23,42,.18)` | Modal |
 
 ---
 
 ## 5. Komponen
 
+Class kustom didefinisikan di `<style>` `layouts/admin.blade.php`, di atas Bootstrap.
+
 ### Buttons
 
-| Varian | Background | Teks | Border |
+| Varian | Class | Background | Teks |
 |---|---|---|---|
-| Primary | `blue-500` (hover `blue-600`) | putih | — |
-| Secondary | `blue-50` | `blue-700` | — |
-| Outline | putih | `ink-800` | `ink-300` |
-| Ghost | transparan | `ink-700` | — |
-| Danger | `#E23D3D` (hover `#B42318`) | putih | — |
+| Primary | `.btn.btn-primary` | `--admin-primary` (+ shadow biru) | putih |
+| Soft danger | `.btn-soft-danger` | `#fef2f2` (hover `#fee2e2`) | `#b91c1c` |
+| Light | `.btn.btn-light` | Bootstrap default + radius `8px` | — |
 
-- **Ukuran:** Small `7×14px` / 13px · Medium `11×20px` / 15px · Large `14×26px` / 16px.
-- **Radius** `radius-md`. **Weight** 600. **Disabled** opacity 45%.
-- Di mobile, tinggi minimal 44px untuk area sentuh.
+Semua radius `--admin-radius` (`8px`).
 
 ### Input & Form
 
-- Border `1.5px ink-300`, radius `radius-md`, padding `11×14px`, font 15px.
-- **Focus:** border `blue-500` + ring `0 0 0 4px blue-50`.
-- **Error:** border `#E23D3D` + ring `0 0 0 4px #FCEAEA`, plus hint teks merah di bawah.
-- **Disabled:** background `ink-100`, teks `ink-500`.
-- Label di atas field, 13px / weight 600 / warna `ink-800`. Hint 12px / `ink-500`.
-- Textarea (deskripsi keluhan): tinggi minimal 96px, resize vertikal.
-
-### Chip Kategori
-
-Pill, radius `radius-full`, padding `7×14px`, font 13px / weight 500.
-- **Default:** background `ink-100`, teks `ink-700`.
-- **Aktif:** background `blue-50`, teks `blue-700`, border `1.5px blue-300`.
+- `.form-control` / `.form-select`: tinggi minimal `42px`, border `--admin-line`, radius `8px`, teks `--admin-text`.
+- **Focus:** border `#bfdbfe` + ring `0 0 0 .2rem rgba(37,99,235,.1)`.
+- **Label:** `.form-label`, `0.84rem` / weight 600 / warna `#374151`.
+- **Layout:** `.form-grid` = 4 kolom (`repeat(4, 1fr)`), helper `.span-2` / `.span-4`. Turun ke 2 kolom di ≤991px.
 
 ### Badge / Status
 
-Pill dengan titik berwarna + label (lihat [bagian 6](#6-status-pengaduan-domain)). Font 12.5px / weight 600.
+`.badge-soft` — pill (`999px`), padding `.42rem .65rem`, weight 600, `0.76rem`. Modifier warna `.badge-menunggu` / `.badge-diproses` / `.badge-selesai` / `.badge-ditolak` (lihat [bagian 6](#6-status-pengaduan-domain)). Render: `ucfirst($status)`.
 
 ### Card
 
-Background `ink-0`, border `1px ink-200`, radius `radius-lg`, shadow `shadow-1`, padding `space-5`.
-Kartu pengaduan: judul (H3) + badge status di kanan atas, deskripsi (Body Small `ink-600`), footer metadata (avatar + nama + kategori + waktu).
+`.card`: border 0, radius `8px`, shadow `--admin-shadow`. Varian `.section-card` (overflow hidden) + `.section-header` (header dengan border bawah) + `.section-title` / `.section-subtitle`.
+
+### Mini-metric (stat card)
+
+`.metric-strip` = grid 3 kolom. Tiap `.mini-metric`: label (`.mini-metric-label`) + nilai besar (`.mini-metric-value`, `1.65rem`/700) + `.mini-metric-icon` (chip `38px`, bg `--admin-primary-soft`). Turun ke 1 kolom di ≤575px.
 
 ### Navigasi
 
-- **Mobile — Bottom nav:** 3 item (Beranda, Riwayat, Profil). Ikon 22px + label 10px. Aktif `blue-500`, nonaktif `ink-400`.
-- **Web — Sidebar:** lebar 180–240px, background `ink-950`, teks `#9AA7B8`. Item aktif background `blue-500` + teks putih. Topbar berisi judul halaman + aksi utama.
+- **Sidebar (`.sidebar`):** **terang** (`--admin-surface`), sticky, lebar **248px** (`grid-template-columns: 248px minmax(0,1fr)`), border kanan `--admin-line`. Item `.sidebar-link`: teks `#4b5563`, ikon `#94a3b8`; **aktif/hover** → background `--admin-primary-soft` + teks/ikon `--admin-primary`. Di ≤991px sidebar jadi statis + nav grid.
+- **Topbar (`.topbar`):** judul halaman (`.page-title` + `.page-kicker`) di kiri, `.user-pill` (pill + `.avatar-dot`) di kanan.
+
+### Modal
+
+`.modal-content`: radius `8px`, shadow `0 28px 80px rgba(15,23,42,.18)`. Header/footer padding `20px 24px`, body `24px`.
 
 ---
 
 ## 6. Status Pengaduan (Domain)
 
-Empat status inti, konsisten di mobile & web.
+Empat status — **nilai enum di database** (`enum('status', [...])` pada migrasi `create_complaints_table`), default `menunggu`.
 
-| Status | Arti | Warna |
-|---|---|---|
-| **Baru** | Pengaduan baru masuk, belum ditangani | Info / Blue |
-| **Diproses** | Sedang ditindaklanjuti | Warning / Amber |
-| **Selesai** | Sudah ditangani / ditutup | Success / Green |
-| **Ditolak** | Tidak valid / di luar wewenang | Danger / Red |
+| Nilai enum | Label tampil | Arti | Warna badge |
+|---|---|---|---|
+| `menunggu` | Menunggu | Baru masuk, belum ditangani | Amber (`#fff7ed`/`#c2410c`) |
+| `diproses` | Diproses | Sedang ditindaklanjuti | Blue (`#eef6ff`/`#1d4ed8`) |
+| `selesai` | Selesai | Sudah ditangani / ditutup | Green (`#ecfdf5`/`#047857`) |
+| `ditolak` | Ditolak | Tidak valid / di luar wewenang | Red (`#fef2f2`/`#b91c1c`) |
 
-**Aturan:** selalu tampilkan **titik berwarna + label teks**, jangan mengandalkan warna saja — agar tetap terbaca bagi pengguna buta warna.
+> **Penting:** status awal adalah **`menunggu`**, bukan "Baru". Bila label hendak diubah ke "Baru", ubah nilai enum migrasi, mapping `$badgeClass` di view, dan kontrak API sekaligus.
+
+**Aturan a11y:** badge memakai warna + label teks (`ucfirst`), tidak bergantung warna saja.
 
 ---
 
 ## 7. Pola Layar
 
-### Mobile — Beranda mahasiswa
+### Dashboard admin (Blade + Bootstrap)
 
-- Header biru (`blue-500`) berisi sapaan + judul, dengan body melengkung naik menutupi tepi header (radius atas `18px`).
-- Daftar kartu pengaduan ringkas: judul + badge status mini + metadata.
-- Tombol primary lebar penuh "+ Buat Pengaduan".
-- Bottom navigation tetap di bawah.
+- **Shell** `.admin-shell`: sidebar terang `248px` + area konten terang.
+- **Topbar:** judul halaman + user-pill.
+- **Stat cards:** `.metric-strip` 3 kolom (mis. Total / Menunggu / Diproses) — angka besar `1.65rem`/700.
+- **Tabel** pengaduan: kolom Judul / Kategori / Status (`.badge-soft`). Aksi (edit/hapus) via modal Bootstrap, `.table-actions` rata kanan.
+- **Form panel** `.form-panel` + `.form-grid` untuk create/edit inline.
 
-### Web — Dashboard admin
-
-- Sidebar gelap di kiri (navigasi utama) + area konten terang.
-- Baris **stat cards** di atas (Total, Diproses, Selesai) — angka besar (H2) dengan warna status.
-- **Tabel** pengaduan: kolom Judul / Kategori / Status (badge). Header tabel background `ink-100`.
-- Tombol aksi (mis. Ekspor) di kanan atas header.
+Layar lain mengikuti pola sama: `audit-logs`, `users` (+ `admins`), `categories`, `complaints` (`index` / `show`).
 
 ---
 
 ## 8. Aksesibilitas
 
-- **Kontras:** teks utama `ink-900` di atas putih dan teks putih di atas `blue-500` memenuhi WCAG AA.
-- **Status bukan hanya warna:** selalu pasangkan dengan label/ikon.
-- **Area sentuh mobile:** minimal 44×44px.
-- **Focus terlihat:** semua elemen interaktif punya focus ring (`0 0 0 4px blue-50`).
-- **Hierarki:** gunakan ukuran tipografi, jangan hanya tebal/warna.
+- **Kontras:** teks `--admin-text` (`#111827`) di atas putih dan teks putih di atas `--admin-primary` memenuhi WCAG AA.
+- **Status bukan hanya warna:** selalu pasangkan badge dengan label teks.
+- **Focus terlihat:** input punya ring `0 0 0 .2rem rgba(37,99,235,.1)`.
+- **Hierarki:** lewat ukuran/weight tipografi, bukan hanya warna.
+- **Bahasa:** `<html lang="id">`.
 
 ---
 
 ## 9. Design Tokens
 
-### CSS Variables (web / Laravel)
+### CSS Variables aktual (`layouts/admin.blade.php`)
 
 ```css
 :root {
-  /* primary */
-  --color-primary:       #2B63F0;
-  --color-primary-hover: #1E4FD4;
-  --color-primary-soft:  #EEF3FE;
-  /* text & surface */
-  --color-text:          #18233D;
-  --color-text-muted:    #4E5C70;
-  --color-text-subtle:   #9AA7B8;
-  --color-border:        #DCE3EC;
-  --color-bg:            #F6F8FB;
-  --color-surface:       #FFFFFF;
-  --color-sidebar:       #0E1626;
-  /* status */
-  --color-baru:    #2B63F0; --color-baru-bg:    #EEF3FE; --color-baru-text:    #1A41AB;
-  --color-proses:  #F59E0B; --color-proses-bg:  #FEF3E2; --color-proses-text:  #B45309;
-  --color-selesai: #16A34A; --color-selesai-bg: #E7F6EC; --color-selesai-text: #0F7A37;
-  --color-tolak:   #E23D3D; --color-tolak-bg:   #FCEAEA; --color-tolak-text:   #B42318;
-  /* typography */
-  --font-sans: 'Poppins', system-ui, sans-serif;
-  /* radius */
-  --radius-sm: 8px;  --radius-md: 12px;  --radius-lg: 16px;
-  --radius-xl: 20px; --radius-2xl: 28px; --radius-full: 999px;
-  /* elevation */
-  --shadow-1: 0 1px 2px rgba(16,22,38,.06), 0 1px 3px rgba(16,22,38,.08);
-  --shadow-2: 0 4px 14px rgba(16,22,38,.08);
-  --shadow-3: 0 14px 32px rgba(16,22,38,.12);
+  --admin-bg:           #f7f9fb;
+  --admin-surface:      #ffffff;
+  --admin-text:         #111827;
+  --admin-muted:        #6b7280;
+  --admin-line:         #edf1f5;
+  --admin-primary:      #2563eb;
+  --admin-primary-soft: #eff6ff;
+  --admin-shadow: 0 16px 40px rgba(15, 23, 42, 0.06);
+  --admin-radius: 8px;
+}
+
+/* status badges */
+.badge-menunggu { background:#fff7ed; color:#c2410c; }
+.badge-diproses { background:#eef6ff; color:#1d4ed8; }
+.badge-selesai  { background:#ecfdf5; color:#047857; }
+.badge-ditolak  { background:#fef2f2; color:#b91c1c; }
+```
+
+### Tailwind v4 (opsional, untuk halaman non-Bootstrap)
+
+Tailwind dikonfigurasi via CSS-first (`resources/css/app.css`), bukan `tailwind.config.js` (file itu legacy/kosong di v4). Untuk menyelaraskan utility Tailwind dengan token di atas, tambahkan blok `@theme`:
+
+```css
+/* resources/css/app.css */
+@import "tailwindcss";
+
+@theme {
+  --color-primary:      #2563eb;
+  --color-primary-soft: #eff6ff;
+  --color-bg:           #f7f9fb;
+  --color-surface:      #ffffff;
+  --color-text:         #111827;
+  --color-muted:        #6b7280;
+  --color-line:         #edf1f5;
+
+  --color-menunggu: #c2410c;
+  --color-diproses: #1d4ed8;
+  --color-selesai:  #047857;
+  --color-ditolak:  #b91c1c;
+
+  --radius-admin: 8px;
 }
 ```
 
-### Tailwind (`tailwind.config.js` → `theme.extend`)
-
-```js
-theme: {
-  extend: {
-    colors: {
-      primary: {
-        DEFAULT: '#2B63F0', hover: '#1E4FD4', soft: '#EEF3FE',
-        50:'#EEF3FE',100:'#D8E3FD',200:'#B3C7FB',300:'#84A3F8',400:'#527CF4',
-        500:'#2B63F0',600:'#1E4FD4',700:'#1A41AB',800:'#173681',900:'#142B5E',
-      },
-      ink: {
-        50:'#F6F8FB',100:'#EDF1F6',200:'#DCE3EC',300:'#C2CCD9',400:'#9AA7B8',
-        500:'#708096',600:'#4E5C70',700:'#344256',800:'#20293B',900:'#18233D',950:'#0E1626',
-      },
-      baru:'#2B63F0', proses:'#F59E0B', selesai:'#16A34A', tolak:'#E23D3D',
-    },
-    fontFamily: { sans: ['Poppins','system-ui','sans-serif'] },
-    borderRadius: { md:'12px', lg:'16px', xl:'20px', '2xl':'28px' },
-    boxShadow: {
-      e1:'0 1px 2px rgba(16,22,38,.06),0 1px 3px rgba(16,22,38,.08)',
-      e2:'0 4px 14px rgba(16,22,38,.08)',
-      e3:'0 14px 32px rgba(16,22,38,.12)',
-    },
-  },
-}
-```
-
-### Jetpack Compose (Android)
-
-```kotlin
-object KeluhInColors {
-    val Primary      = Color(0xFF2B63F0)
-    val PrimaryHover = Color(0xFF1E4FD4)
-    val PrimarySoft  = Color(0xFFEEF3FE)
-    val TextPrimary  = Color(0xFF18233D)
-    val TextMuted    = Color(0xFF4E5C70)
-    val Border       = Color(0xFFDCE3EC)
-    val Surface      = Color(0xFFFFFFFF)
-    val Background   = Color(0xFFF6F8FB)
-    // status
-    val Baru    = Color(0xFF2B63F0)
-    val Proses  = Color(0xFFF59E0B)
-    val Selesai = Color(0xFF16A34A)
-    val Ditolak = Color(0xFFE23D3D)
-}
-
-val KeluhInShapes = Shapes(
-    extraSmall = RoundedCornerShape(8.dp),
-    small      = RoundedCornerShape(12.dp),
-    medium     = RoundedCornerShape(16.dp),
-    large      = RoundedCornerShape(20.dp),
-    extraLarge = RoundedCornerShape(28.dp),
-)
-```
-
-### Flutter (mobile app ini)
-
-Token di-port ke Dart di `lib/core/constants/` dan dipakai lewat `AppTheme`.
-Sumber tunggal — dilarang hardcode hex/ukuran di luar file token.
-
-| File | Isi |
-|---|---|
-| `app_colors.dart` | skala `blue-50..900`, `ink-0..950`, status `core/bg/text`, alias semantik (`primary`, `background`, `textPrimary`, dll) |
-| `app_spacing.dart` | `space1..space16` (4–64px) |
-| `app_radius.dart` | `sm 8 / md 12 / lg 16 / xl 20 / xxl 28 / full 999` |
-| `app_elevation.dart` | `shadow1/2/3` (`List<BoxShadow>`) + `e1/e2/e3` numerik |
-| `app_typography.dart` | Poppins via `google_fonts`: `display / heading1..3 / bodyLarge / body / bodySmall / caption / button` + `textTheme` |
-
-```dart
-// Pemakaian
-Text('Judul', style: AppTypography.heading3);
-Container(
-  padding: const EdgeInsets.all(AppSpacing.space5),
-  decoration: BoxDecoration(
-    color: AppColors.surface,
-    borderRadius: BorderRadius.circular(AppRadius.lg),
-    boxShadow: AppElevation.shadow1,
-  ),
-);
-```
-
-**Komponen reusable:** `CustomButton`, `CustomTextField` (label di atas + border token),
-`ComplaintCard`, `StatCard`, dan `StatusBadge` (pill titik+label).
-
-**Catatan status (mobile):** label status dirender apa adanya dari backend
-(mis. masih memakai "Menunggu"). Mapping warna saat ini dipertahankan:
-Menunggu=amber, Diproses=biru, Selesai=hijau, Ditolak=merah — lihat
-`Helper.statusColor`. Bila label "Menunggu" diganti "Baru", samakan juga di sini.
+> Jika kelak admin dashboard dimigrasikan dari Bootstrap ke Tailwind, blok `@theme` ini menjadi sumber token tunggal dan `<style>` inline bisa dibuang.
 
 ---
 
-*Keluh In Design System · v1.0 · Poppins · `#2B63F0` — dibuat untuk konsistensi mobile & web.*
+## 10. Kontrak API untuk Mobile
+
+Aplikasi mobile (repo terpisah, Flutter/Compose) **mengonsumsi REST API** repo ini — bukan berbagi file token. Yang harus konsisten lintas platform hanyalah **kontrak data**, bukan CSS:
+
+- **Auth:** Laravel Sanctum (bearer token).
+- **Status pengaduan:** API mengirim nilai enum apa adanya (`menunggu` / `diproses` / `selesai` / `ditolak`). Sisi mobile memetakan ke warna sendiri; samakan mapping dengan [bagian 6](#6-status-pengaduan-domain).
+- Token visual (warna/font/radius) mobile didefinisikan di repo mobile dan **tidak** diatur dokumen ini.
+
+---
+
+*Keluh In Design System (Backend/Admin) · Laravel 13 + Bootstrap 5.3.3 · `#2563eb` · Inter — selaras dengan implementasi nyata `layouts/admin.blade.php`.*
