@@ -83,14 +83,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         ->middleware('super_admin')
         ->name('admin.audit-logs.index');
 
-<<<<<<< HEAD
-    // Complaints Resource (Menggantikan route GET index, POST store, GET show, PUT update, dan DELETE destroy)
-    Route::resource('complaints', ComplaintController::class)
-        ->names('admin.complaints')
-        ->except(['create', 'edit']);
-
-    // Sub-routes untuk Responses dan Attachments yang terhubung ke Complaint
-=======
     // Complaints
     Route::get('/complaints', [ComplaintController::class, 'index'])
         ->name('admin.complaints.index');
@@ -98,7 +90,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         ->name('admin.complaints.store');
     Route::get('/complaints/{complaint}', [ComplaintController::class, 'show'])
         ->name('admin.complaints.show');
->>>>>>> origin/main
     Route::post('/complaints/{complaint}/responses', [ComplaintResponseController::class, 'store'])
         ->name('admin.complaint-responses.store');
     Route::put('/complaints/{complaint}/responses/{response}', [ComplaintResponseController::class, 'update'])
@@ -115,13 +106,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         ->name('admin.complaint-attachments.file');
     Route::post('/complaints/{complaint}/attachments/{attachment}/validate', [ComplaintAttachmentController::class, 'validateAttachment'])
         ->name('admin.complaint-attachments.validate');
-<<<<<<< HEAD
-=======
     Route::put('/complaints/{complaint}', [ComplaintController::class, 'update'])
         ->name('admin.complaints.update');
     Route::delete('/complaints/{complaint}', [ComplaintController::class, 'destroy'])
         ->name('admin.complaints.destroy');
->>>>>>> origin/main
 
     Route::get('/categories', [CategoryController::class, 'index'])
         ->name('admin.categories.index');
