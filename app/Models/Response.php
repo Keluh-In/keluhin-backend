@@ -16,6 +16,7 @@ class Response extends Model
     ];
 
     /**
+<<<<<<< HEAD
      * RELASI: Response milik Complaint
      */
     public function complaint()
@@ -25,9 +26,24 @@ class Response extends Model
 
     /**
      * RELASI: Response dibuat admin (User)
+=======
+     * RELASI: response milik complaint
+     */
+    public function complaint()
+    {
+        return $this->belongsTo(Complaint::class);
+    }
+
+    /**
+     * RELASI: response dibuat admin (user)
+>>>>>>> origin/main
      */
     public function admin()
     {
         return $this->belongsTo(User::class, 'admin_id');
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/main
