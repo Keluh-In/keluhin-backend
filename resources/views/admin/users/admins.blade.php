@@ -84,6 +84,7 @@
                     <th class="text-end">Aksi</th>
                 </tr>
             </thead>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
             <tbody>
                 @forelse($users as $user)
                     @php
@@ -140,5 +141,146 @@
         </table>
     </div>
 </section>
+{{-- ALERT --}}
+@if(session('success'))
+<div class="mb-3 alert alert-success">
+    {{ session('success') }}
+</div>
+@endif
 
+@if($errors->any())
+<div class="mb-3 alert alert-danger">
+    <ul class="mb-0">
+        @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
+
+{{-- MODAL TAMBAH ADMIN --}}
+<div class="modal fade" id="createAdminModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form method="POST" action="{{ route('admin.admin-users.store') }}">
+                @csrf
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Tambah Admin</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="mb-3">
+                        <label>Nama</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Email</label>
+                        <input type="email" name="email" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Password</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Role</label>
+                        <select name="role" class="form-select">
+                            <option value="admin">Admin</option>
+                            <option value="super_admin">Super Admin</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-primary" type="submit">
+                        Simpan
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{{-- MODAL UPDATE --}}
+@foreach($users as $user)
+<div class="modal fade" id="editAdminModal-{{ $user->id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form method="POST" action="{{ route('admin.admin-users.update',$user) }}">
+                @csrf
+                @method('PUT')
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Admin</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="mb-3">
+                        <label>Nama</label>
+                        <input type="text"
+                               name="name"
+                               value="{{ $user->name }}"
+                               class="form-control"
+                               required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Email</label>
+                        <input type="email"
+                               name="email"
+                               value="{{ $user->email }}"
+                               class="form-control"
+                               required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Role</label>
+                        <select name="role" class="form-select">
+                            <option value="admin" {{ $user->role=='admin' ? 'selected' : '' }}>
+                                Admin
+                            </option>
+
+                            <option value="super_admin" {{ $user->role=='super_admin' ? 'selected' : '' }}>
+                                Super Admin
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Password Baru</label>
+                        <input type="password"
+                               name="password"
+                               class="form-control">
+
+                        <small class="text-muted">
+                            Kosongkan jika tidak ingin mengganti password
+                        </small>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-primary" type="submit">
+                        Update
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+@endforeach
 @endsection
