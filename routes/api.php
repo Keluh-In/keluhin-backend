@@ -35,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/complaints', [ComplaintController::class, 'index']);
+    Route::get('/complaints/stats', [ComplaintController::class, 'stats']);
     Route::post('/complaints', [ComplaintController::class, 'store']);
     Route::get('/complaints/{id}', [ComplaintController::class, 'show']);
     Route::get('/complaints/{id}/responses', [ResponseController::class, 'index']);

@@ -32,6 +32,25 @@ class ComplaintController extends Controller
     }
 
     /**
+     * STATS - jumlah complaint per status milik user
+     */
+    public function stats()
+    {
+        $counts = Complaint::where('user_id', auth()->id())
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        return ResponseHelper::success([
+            'total'    => (int) $counts->sum(),
+            'menunggu' => (int) ($counts['menunggu'] ?? 0),
+            'diproses' => (int) ($counts['diproses'] ?? 0),
+            'selesai'  => (int) ($counts['selesai'] ?? 0),
+            'ditolak'  => (int) ($counts['ditolak'] ?? 0),
+        ]);
+    }
+
+    /**
      * STORE
      */
     public function store(StoreComplaintRequest $request)
@@ -47,7 +66,7 @@ class ComplaintController extends Controller
 
         $complaint = Complaint::create($data);
 
-        return ResponseHelper::success($complaint, 'Pengaduan berhasil dibuat');
+        return ResponseHelper::success($complaint->load('category'), 'Pengaduan berhasil dibuat');
     }
 
     /**
@@ -85,12 +104,13 @@ class ComplaintController extends Controller
         unset($data['status']);
 
         if ($request->hasFile('image')) {
+            $this->fileUpload->delete($complaint->image);
             $data['image'] = $this->fileUpload->upload($request->file('image'));
         }
 
         $complaint->update($data);
 
-        return ResponseHelper::success($complaint, 'Berhasil diupdate');
+        return ResponseHelper::success($complaint->load('category'), 'Berhasil diupdate');
     }
 
     /**

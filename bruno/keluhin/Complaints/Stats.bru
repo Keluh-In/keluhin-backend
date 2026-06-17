@@ -1,0 +1,20 @@
+meta {
+  name: Stats
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/complaints/stats
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("status 200", function () {
+    expect(res.status).to.equal(200);
+  });
+  test("ada field total", function () {
+    expect(res.body.data.total).to.be.a("number");
+  });
+}

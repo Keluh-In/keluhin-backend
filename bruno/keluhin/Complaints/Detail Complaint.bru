@@ -1,0 +1,11 @@
+meta {
+  name: Detail Complaint
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/complaints/{{complaintId}}
+  body: none
+  auth: inherit
+}

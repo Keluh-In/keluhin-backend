@@ -15,7 +15,7 @@ class Complaint extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'user_id', 'category_id', 'title', 'description', 'location', 'is_anonymous', 'status',
+        'user_id', 'category_id', 'title', 'description', 'location', 'is_anonymous', 'status', 'image',
     ];
 
     protected $casts = [
@@ -23,6 +23,13 @@ class Complaint extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute()
+    {
+        return $this->image ? asset('storage/' . $this->image) : null;
+    }
 
     public function user()
     {

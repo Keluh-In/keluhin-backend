@@ -343,6 +343,56 @@
         }
       }
     },
+    "/complaints/stats": {
+      "get": {
+        "tags": ["Complaints"],
+        "summary": "Jumlah pengaduan per status milik user",
+        "operationId": "complaintStats",
+        "security": [
+          {
+            "sanctumBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistik pengaduan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/ComplaintStats"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "status": true,
+                  "message": "Success",
+                  "data": {
+                    "total": 12,
+                    "menunggu": 3,
+                    "diproses": 5,
+                    "selesai": 3,
+                    "ditolak": 1
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
     "/complaints/{id}": {
       "get": {
         "tags": ["Complaints"],
@@ -1017,6 +1067,13 @@
             "nullable": true,
             "example": "uploads/complaints/example.jpg"
           },
+          "image_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "description": "URL publik penuh gambar (null jika tidak ada).",
+            "example": "http://localhost:8000/storage/uploads/complaints/example.jpg"
+          },
           "is_anonymous": {
             "type": "boolean",
             "example": false
@@ -1133,6 +1190,17 @@
             "example": "Admin Keluhin"
           }
         }
+      },
+      "ComplaintStats": {
+        "type": "object",
+        "properties": {
+          "total": { "type": "integer", "example": 12 },
+          "menunggu": { "type": "integer", "example": 3 },
+          "diproses": { "type": "integer", "example": 5 },
+          "selesai": { "type": "integer", "example": 3 },
+          "ditolak": { "type": "integer", "example": 1 }
+        },
+        "required": ["total", "menunggu", "diproses", "selesai", "ditolak"]
       }
     }
   }

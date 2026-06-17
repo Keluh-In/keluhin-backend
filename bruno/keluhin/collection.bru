@@ -1,0 +1,22 @@
+headers {
+  Accept: application/json
+}
+
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  # Keluhin API
+
+  Collection-level Bearer auth: semua request mewarisi `Authorization: Bearer {{token}}`.
+
+  Cara pakai:
+  1. Pilih environment **Local** (kanan atas).
+  2. Jalankan **Auth / Login** — script post-response otomatis isi var `token`.
+  3. Request lain langsung jalan (auth inherit).
+}

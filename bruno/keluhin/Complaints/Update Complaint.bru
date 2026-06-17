@@ -1,0 +1,25 @@
+meta {
+  name: Update Complaint
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/complaints/{{complaintId}}
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  _method: PUT
+  title: Jalan rusak (revisi)
+  description: Lubang sudah makin parah
+  location: Jl. Merdeka No. 12
+  ~image: @file(/tmp/test.png)
+}
+
+docs {
+  Laravel tidak mem-parse file pada request PUT mentah, jadi update pakai
+  POST + field `_method: PUT` (method spoofing). Tanpa gambar tetap bekerja;
+  centang field `image` jika mau ganti gambar.
+}

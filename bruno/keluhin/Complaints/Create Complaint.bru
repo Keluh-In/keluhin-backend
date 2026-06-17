@@ -1,0 +1,35 @@
+meta {
+  name: Create Complaint
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/complaints
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  title: Jalan rusak
+  category_id: 1
+  description: Lubang besar di tengah jalan
+  location: Jl. Merdeka No. 10
+  is_anonymous: false
+  image: @file(/tmp/test.png)
+}
+
+script:post-response {
+  if (res.body && res.body.data && res.body.data.id) {
+    bru.setEnvVar("complaintId", res.body.data.id);
+  }
+}
+
+tests {
+  test("status 200", function () {
+    expect(res.status).to.equal(200);
+  });
+  test("image_url terisi", function () {
+    expect(res.body.data.image_url).to.be.a("string");
+  });
+}
